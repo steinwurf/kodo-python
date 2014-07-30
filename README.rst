@@ -49,15 +49,15 @@ This table shows which platforms are supported by a wheel (pre-built) and which
 are supported by a source package.
 
 +---------------------------+----------------+--------------+--------------+----------------+----------------+
-| Platform / Python version | MacOS X 64 Bit | Linux 32 Bit | Linux 64 Bit | Windows 32 Bit | Windows 64 Bit |
+| Platform / Python version | MacOS X 64-bit | Linux 32-bit | Linux 64-bit | Windows 32-bit | Windows 64-bit |
 +===========================+================+==============+==============+================+================+
-| **Python 2.7 32 Bit**     | Source         |  Source      |  Source      | **Wheel**      | **Wheel**      |
+| **Python 2.7 32-bit**     | Source         |  Source      |  Source      | **Wheel**      | **Wheel**      |
 +---------------------------+----------------+--------------+--------------+----------------+----------------+
-| **Python 2.7 64 Bit**     | **Wheel**      |  Source      |  Source      | Source         | Source         |
+| **Python 2.7 64-bit**     | **Wheel**      |  Source      |  Source      | Source         | Source         |
 +---------------------------+----------------+--------------+--------------+----------------+----------------+
-| **Python 3.4 32 Bit**     | Source         |  Source      |  Source      | Source         | Source         |
+| **Python 3.4 32-bit**     | Source         |  Source      |  Source      | Source         | Source         |
 +---------------------------+----------------+--------------+--------------+----------------+----------------+
-| **Python 3.4 64 Bit**     | Source         |  Source      |  Source      | Source         | Source         |
+| **Python 3.4 64-bit**     | Source         |  Source      |  Source      | Source         | Source         |
 +---------------------------+----------------+--------------+--------------+----------------+----------------+
 
 If we do not have a pre-built version for your configuration, you'll need the
@@ -68,7 +68,7 @@ The next steps will be platform dependent.
 
 Linux / Mac
 ---------
-When you are ready to install python you can simply type:
+When you are ready to install python you can simply type::
 
   sudo pip install kodo
 
@@ -78,7 +78,7 @@ To enable the use of pip from the command line, ensure the ``Scripts``
 subdirectory of your Python installation is available on the system ``PATH``.
 (This is not done automatically.)
 
-When you are ready to install python you can simply type:
+When you are ready to install python you can simply type::
 
   pip install kodo
 
@@ -124,7 +124,6 @@ Building From Source
 ====================
 Now that you have all requirements, you are ready to clone, configure and build
 the project::
-::
 
     git clone https://github.com/steinwurf/kodo-python.git
 

@@ -48,17 +48,17 @@ specific configurations, but not all.
 This table shows which platforms are supported by a wheel (pre-built) and which
 are supported by a source package.
 
-+---------------------------+--------------+-------------+---------------+-------------+-------------+---------------+
-| Python version / Platform | MacOs  32Bit | Linux 32Bit | Windows 32Bit | MacOs 64Bit | Linux 64Bit | Windows 64Bit |
-+===========================+==============+=============+===============+=============+=============+===============+
-| **Python2.7 32Bit**       | Source       |  Source     | **Wheel**     | Source      |  Source     | **Wheel**     |
-+---------------------------+--------------+-------------+---------------+-------------+-------------+---------------+
-| **Python2.7 64Bit**       | Source       |  Source     | Source        | **Wheel**   |  Source     | Source        |
-+---------------------------+--------------+-------------+---------------+-------------+-------------+---------------+
-| **Python3.4 32Bit**       | Source       |  Source     | Source        | Source      |  Source     | Source        |
-+---------------------------+--------------+-------------+---------------+-------------+-------------+---------------+
-| **Python3.4 64Bit**       | Source       |  Source     | Source        | Source      |  Source     | Source        |
-+---------------------------+--------------+-------------+---------------+-------------+-------------+---------------+
++---------------------------+---------------+--------------+----------------+--------------+--------------+----------------+
+| Platform / Python version | MacOs  32 Bit | Linux 32 Bit | Windows 32 Bit | MacOs 64 Bit | Linux 64 Bit | Windows 64 Bit |
++===========================+===============+==============+================+==============+==============+================+
+| **Python 2.7 32 Bit**     | Source        |  Source      | **Wheel**      | Source       |  Source      | **Wheel**      |
++---------------------------+---------------+--------------+----------------+--------------+--------------+----------------+
+| **Python 2.7 64 Bit**     | Source        |  Source      | Source         | **Wheel* *   |  Source      | Source         |
++---------------------------+---------------+--------------+----------------+--------------+--------------+----------------+
+| **Python 3.4 32 Bit**     | Source        |  Source      | Source         | Source       |  Source      | Source         |
++---------------------------+---------------+--------------+----------------+--------------+--------------+----------------+
+| **Python 3.4 64 Bit**     | Source        |  Source      | Source         | Source       |  Source      | Source         |
++---------------------------+---------------+--------------+----------------+--------------+--------------+----------------+
 
 If we do not have a pre-built version for your configuration, you'll need the
 requirements specified in `Requirements for Building From Source`_ to install

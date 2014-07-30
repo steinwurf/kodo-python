@@ -1,5 +1,5 @@
-Kodo-Python-Package
-===================
+Kodo-Python
+===========
 This package contains high-level python bindings for the Kodo Network Coding
 library. The bindings provide access to basic functionality provided by Kodo,
 such as encoding and decoding of data. The examples folder provides sample
@@ -33,7 +33,7 @@ see the details in the COPYING.txt file.
 
 Installation
 ============
-We provide a pip package for easy installation of the kodo-python-package
+We provide a pip package for easy installation of the kodo-python
 library.
 
 To install this you'll need python and pip installed:
@@ -53,7 +53,7 @@ are supported by a source package.
 +===========================+===============+==============+================+==============+==============+================+
 | **Python 2.7 32 Bit**     | Source        |  Source      | **Wheel**      | Source       |  Source      | **Wheel**      |
 +---------------------------+---------------+--------------+----------------+--------------+--------------+----------------+
-| **Python 2.7 64 Bit**     | Source        |  Source      | Source         | **Wheel**    |  Source      | Source         |
+| **Python 2.7 64 Bit**     | Source        |  Source      | Source         | **Wheel* *   |  Source      | Source         |
 +---------------------------+---------------+--------------+----------------+--------------+--------------+----------------+
 | **Python 3.4 32 Bit**     | Source        |  Source      | Source         | Source       |  Source      | Source         |
 +---------------------------+---------------+--------------+----------------+--------------+--------------+----------------+
@@ -67,7 +67,7 @@ the package.
 Requirements for Building From Source
 =====================================
 Depending the platform, different steps are needed for building
-kodo-python-package.
+kodo-python.
 
 Please note, the compiler you download should be recent. The compilers used by
 Steinwurf is listed on the `buildbot page <http://buildbot.steinwurf.com>`_.
@@ -107,11 +107,11 @@ Now that you have all requirements, you are ready to clone, configure and build
 the project::
 ::
 
-    git clone https://github.com/steinwurf/kodo-python-package.git
+    git clone https://github.com/steinwurf/kodo-python.git
 
 configure and build the project::
 
-  cd kodo-python-package
+  cd kodo-python
   python waf configure
   python waf build
 

@@ -27,7 +27,7 @@ If you wish to use this library, please obtain a valid license. To do so
 **you must fill out the license request** form_.
 
 This project is available under a research and educational friendly licensee,
-see the details in the COPYING.txt file.
+see the details in the README.rst file.
 
 .. _form: http://steinwurf.com/license/
 

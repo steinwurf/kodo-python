@@ -10,6 +10,7 @@
 #include <kodo_rlnc/sliding_window_decoder.hpp>
 
 #include "create_helpers.hpp"
+#include "symbol_decoding_status_updater_methods.hpp"
 
 namespace kodo_python
 {
@@ -74,6 +75,7 @@ struct extra_decoder_methods<kodo_rlnc::sliding_window_decoder>
              &write_feedback<typename DecoderClass::wrapped_type>,
              "Return a buffer containing the feedback.\n\n"
              "\t:returns: A buffer containing the feedback.\n");
+        symbol_decoding_status_updater_methods<DecoderClass>(decoder_class);
     }
 };
 

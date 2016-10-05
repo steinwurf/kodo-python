@@ -9,6 +9,7 @@
 #include <kodo_rlnc/perpetual_codes.hpp>
 
 #include "create_helpers.hpp"
+#include "symbol_decoding_status_updater_methods.hpp"
 
 namespace kodo_python
 {
@@ -68,12 +69,20 @@ struct extra_encoder_methods<kodo_rlnc::perpetual_encoder>
     }
 };
 
+template<>
+struct extra_decoder_methods<kodo_rlnc::perpetual_decoder>
+{
+    template<class DecoderClass>
+    extra_decoder_methods(DecoderClass& decoder_class)
+    {
+        symbol_decoding_status_updater_methods<DecoderClass>(decoder_class);
+    }
+};
+
 void create_perpertual_stacks()
 {
-    using namespace kodo_rlnc;
-
-    create_encoder<perpetual_encoder>("Perpetual");
-    create_decoder<perpetual_decoder>("Perpetual");
+    create_encoder<kodo_rlnc::perpetual_encoder>("Perpetual");
+    create_decoder<kodo_rlnc::perpetual_decoder>("Perpetual");
 }
 }
 

@@ -9,15 +9,25 @@
 #include <kodo_rlnc/on_the_fly_codes.hpp>
 
 #include "create_helpers.hpp"
+#include "symbol_decoding_status_updater_methods.hpp"
 
 namespace kodo_python
 {
+
+template<>
+struct extra_decoder_methods<kodo_rlnc::on_the_fly_decoder>
+{
+    template<class DecoderClass>
+    extra_decoder_methods(DecoderClass& decoder_class)
+    {
+        symbol_decoding_status_updater_methods<DecoderClass>(decoder_class);
+    }
+};
+
 void create_on_the_fly_stacks()
 {
-    using namespace kodo_rlnc;
-
-    create_encoder<on_the_fly_encoder>("OnTheFly");
-    create_decoder<on_the_fly_decoder>("OnTheFly");
+    create_encoder<kodo_rlnc::on_the_fly_encoder>("OnTheFly");
+    create_decoder<kodo_rlnc::on_the_fly_decoder>("OnTheFly");
 }
 }
 

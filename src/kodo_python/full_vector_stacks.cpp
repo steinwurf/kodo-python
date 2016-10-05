@@ -9,6 +9,7 @@
 #include <kodo_rlnc/full_vector_codes.hpp>
 
 #include "create_helpers.hpp"
+#include "symbol_decoding_status_updater_methods.hpp"
 
 namespace kodo_python
 {
@@ -39,14 +40,22 @@ struct extra_encoder_methods<kodo_rlnc::sparse_full_vector_encoder>
     }
 };
 
+template<>
+struct extra_decoder_methods<kodo_rlnc::full_vector_decoder>
+{
+    template<class DecoderClass>
+    extra_decoder_methods(DecoderClass& decoder_class)
+    {
+        symbol_decoding_status_updater_methods<DecoderClass>(decoder_class);
+    }
+};
+
 void create_full_vector_stacks()
 {
-    using namespace kodo_rlnc;
+    create_encoder<kodo_rlnc::full_vector_encoder>("FullVector");
+    create_decoder<kodo_rlnc::full_vector_decoder>("FullVector");
 
-    create_encoder<full_vector_encoder>("FullVector");
-    create_decoder<full_vector_decoder>("FullVector");
-
-    create_encoder<sparse_full_vector_encoder>("SparseFullVector");
+    create_encoder<kodo_rlnc::sparse_full_vector_encoder>("SparseFullVector");
 }
 }
 

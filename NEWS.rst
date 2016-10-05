@@ -6,6 +6,8 @@ every change, see the Git log.
 
 Latest
 ------
+* Major: Update kodo-core, kodo-rlnc, and kodo-fulcrum to version 6, 5, and 5
+         respectively.
 * Minor: Added decoder functions: ``copy_from_symbol``, ``is_symbol_missing``,
   ``is_symbol_partially_decoded``, ``is_symbol_uncoded``, ``symbols_missing``,
   ``symbols_partially_decoded``.

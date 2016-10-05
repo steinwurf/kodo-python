@@ -43,10 +43,8 @@ public:
 
 void create_carousel_stacks()
 {
-    create_factory_and_encoder<carousel_encoder_wrapper,
-        no_field>("NoCode");
-    create_factory_and_decoder<carousel_decoder_wrapper,
-        no_field>("NoCode");
+    create_factory_and_encoder<carousel_encoder_wrapper, no_field>("NoCode");
+    create_factory_and_decoder<carousel_decoder_wrapper, no_field>("NoCode");
 }
 }
 

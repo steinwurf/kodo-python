@@ -17,7 +17,7 @@ def main():
     """Simple example showing how to encode and decode a block of data."""
     # Set the number of symbols (i.e. the generation size in RLNC
     # terminology) and the size of a symbol in bytes
-    symbols = 8
+    symbols = 50
     symbol_size = 160
 
     # In the following we will make an encoder/decoder factory.
@@ -28,8 +28,17 @@ def main():
     encoder = encoder_factory.build()
 
     decoder_factory = kodo.FullVectorDecoderFactoryBinary(symbols, symbol_size)
+    # Create two decoders, one which has the status updater turned on, and one
+    # which has it off.
     decoder1 = decoder_factory.build()
     decoder2 = decoder_factory.build()
+
+    decoder2.set_status_updater_on()
+
+    print("decoder 1 status updater: {}".format(
+        decoder1.is_status_updater_enabled()))
+    print("decoder 2 status updater: {}".format(
+        decoder2.is_status_updater_enabled()))
 
     # Create some data to encode. In this case we make a buffer
     # with the same size as the encoder's block size (the max.
@@ -41,6 +50,10 @@ def main():
     # produce encoded symbols
     encoder.set_const_symbols(data_in)
 
+    # Skip the systematic phase as the effect of the symbol status decoder is
+    # only visible when reading coded packets.
+    encoder.set_systematic_off()
+
     print("Processing")
     while not decoder1.is_complete():
         # Generate an encoded packet
@@ -50,6 +63,9 @@ def main():
         # Pass that packet to the decoder
         decoder1.read_payload(payload)
         decoder2.read_payload(payload_copy)
+        print("decoder 1: {}".format(decoder1.symbols_uncoded()))
+        print("decoder 2: {}".format(decoder2.symbols_uncoded()))
+        print("-----------------")
 
     print("Processing finished")
 

@@ -146,7 +146,8 @@ void decoder(const std::string& stack)
     std::string kind = "Decoder";
     std::string name = stack + kind + field;
 
-    auto decoder_class = coder<Coder, Field, TraceTag>(name)
+    auto decoder_class =
+        coder<Coder, Field, TraceTag>(name)
         .def("read_payload", &read_payload<decoder_type>, arg("symbol_data"),
              "Decode the provided encoded symbol.\n\n"
              "\t:param symbol_data: The encoded symbol.\n"

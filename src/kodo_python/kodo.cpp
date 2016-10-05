@@ -88,9 +88,9 @@ std::string version()
 #ifdef STEINWURF_RECYCLE_VERSION
     version += std::string(STEINWURF_RECYCLE_VERSION);
 #endif
-    version += std::string("\n\tsak: ");
-#ifdef STEINWURF_SAK_VERSION
-    version += std::string(STEINWURF_SAK_VERSION);
+    version += std::string("\n\tstorage: ");
+#ifdef STEINWURF_STORAGE_VERSION
+    version += std::string(STEINWURF_STORAGE_VERSION);
 #endif
 
     return version;

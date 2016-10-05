@@ -14,7 +14,7 @@ import kodo
 
 
 def main():
-    """Simple example showing how to encode and decode a block of data."""
+    """Example showing the result of enabling the symbol status updater."""
     # Set the number of symbols (i.e. the generation size in RLNC
     # terminology) and the size of a symbol in bytes
     symbols = 50

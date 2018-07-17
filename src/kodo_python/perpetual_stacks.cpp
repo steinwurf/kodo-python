@@ -3,10 +3,9 @@
 // See accompanying file LICENSE.rst or
 // http://www.steinwurf.com/licensing
 
-#if !defined(KODO_PYTHON_DISABLE_RLNC) && \
-    !defined(KODO_PYTHON_DISABLE_PERPETUAL)
+#if !defined(KODO_PYTHON_DISABLE_PERPETUAL)
 
-#include <kodo_rlnc/perpetual_codes.hpp>
+#include <kodo_perpetual/coders.hpp>
 
 #include "create_helpers.hpp"
 #include "symbol_decoding_status_updater_methods.hpp"
@@ -14,7 +13,7 @@
 namespace kodo_python
 {
 template<>
-struct extra_encoder_methods<kodo_rlnc::perpetual_encoder>
+struct extra_encoder_methods<kodo_perpetual::encoder>
 {
     template<class EncoderClass>
     extra_encoder_methods(EncoderClass& encoder_class)
@@ -70,7 +69,7 @@ struct extra_encoder_methods<kodo_rlnc::perpetual_encoder>
 };
 
 template<>
-struct extra_decoder_methods<kodo_rlnc::perpetual_decoder>
+struct extra_decoder_methods<kodo_perpetual::decoder>
 {
     template<class DecoderClass>
     extra_decoder_methods(DecoderClass& decoder_class)
@@ -79,10 +78,10 @@ struct extra_decoder_methods<kodo_rlnc::perpetual_decoder>
     }
 };
 
-void create_perpertual_stacks()
+void create_perpetual_stacks()
 {
-    create_encoder<kodo_rlnc::perpetual_encoder>("Perpetual");
-    create_decoder<kodo_rlnc::perpetual_decoder>("Perpetual");
+    create_encoder<kodo_perpetual::encoder>("Perpetual");
+    create_decoder<kodo_perpetual::decoder>("Perpetual");
 }
 }
 

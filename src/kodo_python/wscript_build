@@ -20,9 +20,10 @@ bld(
         'boost_python',
         'boost_filesystem',
         'boost_system',
-        'kodo_core_includes',
-        'kodo_rlnc_includes',
-        'kodo_fulcrum_includes',
+        'kodo_core',
+        'kodo_rlnc',
+        'kodo_perpetual',
+        'kodo_fulcrum',
         'KODO_PYTHON_COMMON'
     ]
 )

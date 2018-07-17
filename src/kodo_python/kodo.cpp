@@ -10,11 +10,9 @@
 namespace kodo_python
 {
 // Forward declarations of "create" functions implemented in other cpp files
-void create_full_vector_stacks();
-void create_on_the_fly_stacks();
-void create_sliding_window_stacks();
-void create_perpertual_stacks();
 void create_carousel_stacks();
+void create_rlnc_stacks();
+void create_perpetual_stacks();
 void create_fulcrum_stacks();
 
 void create_stacks()
@@ -24,21 +22,12 @@ void create_stacks()
 #endif
 
 #if !defined(KODO_PYTHON_DISABLE_RLNC)
+    create_rlnc_stacks();
+#endif
 
-#if !defined(KODO_PYTHON_DISABLE_FULL_VECTOR)
-    create_full_vector_stacks();
-#endif
-#if !defined(KODO_PYTHON_DISABLE_ON_THE_FLY)
-    create_on_the_fly_stacks();
-#endif
-#if !defined(KODO_PYTHON_DISABLE_SLIDING_WINDOW)
-    create_sliding_window_stacks();
-#endif
 #if !defined(KODO_PYTHON_DISABLE_PERPETUAL)
-    create_perpertual_stacks();
+    create_perpetual_stacks();
 #endif
-
-#endif // !defined(KODO_PYTHON_DISABLE_RLNC)
 
 #if !defined(KODO_PYTHON_DISABLE_FULCRUM)
     create_fulcrum_stacks();
@@ -69,13 +58,6 @@ std::string version()
     version += std::string(STEINWURF_KODO_CORE_VERSION);
 #endif
 
-#if !defined(KODO_PYTHON_DISABLE_FULCRUM)
-    version += std::string("\n\tkodo-fulcrum: ");
-#ifdef STEINWURF_KODO_FULCRUM_VERSION
-    version += std::string(STEINWURF_KODO_FULCRUM_VERSION);
-#endif
-#endif
-
 #if !defined(KODO_PYTHON_DISABLE_RLNC)
     version += std::string("\n\tkodo-rlnc: ");
 #ifdef STEINWURF_KODO_RLNC_VERSION
@@ -83,18 +65,26 @@ std::string version()
 #endif
 #endif
 
-    version += std::string("\n\tmeta: ");
-#ifdef STEINWURF_META_VERSION
-    version += std::string(STEINWURF_META_VERSION);
+#if !defined(KODO_PYTHON_DISABLE_PERPETUAL)
+    version += std::string("\n\tkodo-perpetual: ");
+#ifdef STEINWURF_KODO_PERPETUAL_VERSION
+    version += std::string(STEINWURF_KODO_PERPETUAL_VERSION);
 #endif
+#endif
+
+#if !defined(KODO_PYTHON_DISABLE_FULCRUM)
+    version += std::string("\n\tkodo-fulcrum: ");
+#ifdef STEINWURF_KODO_FULCRUM_VERSION
+    version += std::string(STEINWURF_KODO_FULCRUM_VERSION);
+#endif
+#endif
+
+
     version += std::string("\n\tplatform: ");
 #ifdef STEINWURF_PLATFORM_VERSION
     version += std::string(STEINWURF_PLATFORM_VERSION);
 #endif
-    version += std::string("\n\trecycle: ");
-#ifdef STEINWURF_RECYCLE_VERSION
-    version += std::string(STEINWURF_RECYCLE_VERSION);
-#endif
+
     version += std::string("\n\tstorage: ");
 #ifdef STEINWURF_STORAGE_VERSION
     version += std::string(STEINWURF_STORAGE_VERSION);

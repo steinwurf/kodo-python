@@ -11,9 +11,6 @@
 
 #include <boost/python.hpp>
 
-#include <kodo_core/has_partial_decoding_tracker.hpp>
-#include <kodo_core/has_write_payload.hpp>
-
 #include <storage/storage.hpp>
 
 #include "coder.hpp"
@@ -123,7 +120,7 @@ struct write_payload_method<true>
     }
 };
 
-template<template<class, class> class Coder>
+template<class Coder>
 struct extra_decoder_methods
 {
     template<class DecoderClass>
@@ -133,15 +130,14 @@ struct extra_decoder_methods
     }
 };
 
-template<template<class, class> class Coder, class Field, class TraceTag>
+template<class Coder>
 void decoder(const std::string& stack)
 {
     using boost::python::arg;
-    using decoder_type = Coder<Field, TraceTag>;
+    using decoder_type = Coder;
 
-    std::string field = resolve_field_name<Field>();
     std::string kind = "Decoder";
-    std::string name = stack + kind + field;
+    std::string name = stack + kind;
 
     auto decoder_class =
         coder<Coder, Field, TraceTag>(name)

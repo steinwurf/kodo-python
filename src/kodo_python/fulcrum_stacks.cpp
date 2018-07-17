@@ -5,7 +5,7 @@
 
 #if !defined(KODO_PYTHON_DISABLE_FULCRUM)
 
-#include <kodo_fulcrum/fulcrum_codes.hpp>
+#include <kodo_fulcrum/coders.hpp>
 
 #include "create_helpers.hpp"
 
@@ -71,7 +71,7 @@ struct fulcrum_factory_methods
 };
 
 template<>
-struct extra_encoder_methods<kodo_fulcrum::fulcrum_encoder>
+struct extra_encoder_methods<kodo_fulcrum::encoder>
 {
     template<class EncoderClass>
     extra_encoder_methods(EncoderClass& encoder_class)
@@ -81,7 +81,7 @@ struct extra_encoder_methods<kodo_fulcrum::fulcrum_encoder>
 };
 
 template<>
-struct extra_decoder_methods<kodo_fulcrum::fulcrum_combined_decoder>
+struct extra_decoder_methods<kodo_fulcrum::decoder>
 {
     template<class DecoderClass>
     extra_decoder_methods(DecoderClass& decoder_class)
@@ -91,7 +91,7 @@ struct extra_decoder_methods<kodo_fulcrum::fulcrum_combined_decoder>
 };
 
 template<>
-struct extra_factory_methods<kodo_fulcrum::fulcrum_encoder>
+struct extra_factory_methods<kodo_fulcrum::encoder>
 {
     template<class FactoryClass>
     extra_factory_methods(FactoryClass& factory_class)
@@ -101,7 +101,7 @@ struct extra_factory_methods<kodo_fulcrum::fulcrum_encoder>
 };
 
 template<>
-struct extra_factory_methods<kodo_fulcrum::fulcrum_combined_decoder>
+struct extra_factory_methods<kodo_fulcrum::decoder>
 {
     template<class FactoryClass>
     extra_factory_methods(FactoryClass& factory_class)
@@ -114,8 +114,8 @@ void create_fulcrum_stacks()
 {
     using namespace kodo_fulcrum;
 
-    create_encoder<fulcrum_encoder>("Fulcrum");
-    create_decoder<fulcrum_combined_decoder>("Fulcrum");
+    create_encoder<encoder>("Fulcrum");
+    create_decoder<decoder>("Fulcrum");
 }
 }
 

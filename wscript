@@ -6,8 +6,7 @@ import os
 APPNAME = 'kodo-python'
 VERSION = '12.0.0'
 
-codecs = ['nocode', 'full_vector', 'on_the_fly', 'sliding_window',
-          'perpetual', 'fulcrum']
+codecs = ['nocode', 'rlnc', 'perpetual', 'fulcrum']
 
 
 def options(opt):
@@ -19,6 +18,10 @@ def options(opt):
     opts.add_option(
         '--disable_rlnc', default=None, dest='disable_rlnc',
         action='store_true', help="Disable the basic RLNC codecs")
+
+    opts.add_option(
+        '--disable_perpetual', default=None, dest='disable_perpetual',
+        action='store_true', help="Disable the Perpetual RLNC codecs")
 
     opts.add_option(
         '--disable_fulcrum', default=None, dest='disable_fulcrum',
@@ -40,13 +43,18 @@ def configure(conf):
        not conf.has_dependency_path('kodo-rlnc'):
         conf.env['DEFINES_KODO_PYTHON_COMMON'] += ['KODO_PYTHON_DISABLE_RLNC']
         disabled_codec_groups += 1
+    if conf.has_tool_option('disable_perpetual') or \
+       not conf.has_dependency_path('kodo-perpetual'):
+        conf.env['DEFINES_KODO_PYTHON_COMMON'] += \
+            ['KODO_PYTHON_DISABLE_PERPETUAL']
+        disabled_codec_groups += 1
     if conf.has_tool_option('disable_fulcrum') or \
        not conf.has_dependency_path('kodo-fulcrum'):
         conf.env['DEFINES_KODO_PYTHON_COMMON'] += \
             ['KODO_PYTHON_DISABLE_FULCRUM']
         disabled_codec_groups += 1
 
-    if disabled_codec_groups == 2:
+    if disabled_codec_groups == 3:
         conf.fatal('All codec groups are disabled or unavailable. Please make '
                    'sure that you enable at least one codec group and you '
                    'have access to the corresponding repositories!')

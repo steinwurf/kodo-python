@@ -7,13 +7,6 @@
 
 #include <string>
 
-#include <fifi/binary.hpp>
-#include <fifi/binary4.hpp>
-#include <fifi/binary8.hpp>
-#include <fifi/binary16.hpp>
-
-#include <kodo_core/enable_trace.hpp>
-
 #include "encoder.hpp"
 #include "decoder.hpp"
 #include "factory.hpp"
@@ -21,39 +14,33 @@
 
 namespace kodo_python
 {
-template<template<class, class> class Coder, class Field>
+template<class Coder>
 void create_factory_and_encoder(const std::string& stack)
 {
     // First create the factory type
-    factory<Coder, Field, meta::typelist<kodo_core::enable_trace>>(stack);
+    factory<Coder>(stack);
     // Then create the corresponding encoder type
-    encoder<Coder, Field, meta::typelist<kodo_core::enable_trace>>(stack);
+    encoder<Coder>(stack);
 }
 
-template<template<class, class> class Coder, class Field>
+template<class Coder>
 void create_factory_and_decoder(const std::string& stack)
 {
     // First create the factory type
-    factory<Coder, Field, meta::typelist<kodo_core::enable_trace>>(stack);
+    factory<Coder>(stack);
     // Then create the corresponding decoder type
-    decoder<Coder, Field, meta::typelist<kodo_core::enable_trace>>(stack);
+    decoder<Coder>(stack);
 }
 
-template<template<class, class> class Coder>
+template<class Coder>
 void create_encoder(const std::string& stack)
 {
-    create_factory_and_encoder<Coder, fifi::binary>(stack);
-    create_factory_and_encoder<Coder, fifi::binary4>(stack);
-    create_factory_and_encoder<Coder, fifi::binary8>(stack);
-    create_factory_and_encoder<Coder, fifi::binary16>(stack);
+    create_factory_and_encoder<Coder>(stack);
 }
 
 template<template<class, class> class Coder>
 void create_decoder(const std::string& stack)
 {
-    create_factory_and_decoder<Coder, fifi::binary>(stack);
-    create_factory_and_decoder<Coder, fifi::binary4>(stack);
-    create_factory_and_decoder<Coder, fifi::binary8>(stack);
-    create_factory_and_decoder<Coder, fifi::binary16>(stack);
+    create_factory_and_decoder<Coder>(stack);
 }
 }

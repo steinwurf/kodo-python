@@ -21,7 +21,7 @@
         "name": "kodo-core",
         "resolver": "git",
         "method": "semver",
-        "major": 9,
+        "major": 20,
         "sources": [
             "github.com/steinwurf/kodo-core.git"
         ]
@@ -31,9 +31,19 @@
         "optional": true,
         "resolver": "git",
         "method": "semver",
-        "major": 7,
+        "major": 13,
         "sources": [
             "github.com/steinwurf/kodo-rlnc.git"
+        ]
+    },
+    {
+        "name": "kodo-perpetual",
+        "optional": true,
+        "resolver": "git",
+        "method": "semver",
+        "major": 2,
+        "sources": [
+            "github.com/steinwurf/kodo-perpetual.git"
         ]
     },
     {
@@ -41,7 +51,7 @@
         "optional": true,
         "resolver": "git",
         "method": "semver",
-        "major": 7,
+        "major": 12,
         "sources": [
             "github.com/steinwurf/kodo-fulcrum.git"
         ]

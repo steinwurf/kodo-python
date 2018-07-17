@@ -10,8 +10,6 @@
 
 #include <boost/python.hpp>
 
-#include <kodo_core/has_set_systematic_off.hpp>
-
 #include "coder.hpp"
 #include "resolve_field_name.hpp"
 
@@ -82,7 +80,7 @@ struct systematic_encoder_methods<true>
     }
 };
 
-template<template<class, class> class Coder>
+template<class Coder>
 struct extra_encoder_methods
 {
     template<class EncoderClass>
@@ -92,19 +90,15 @@ struct extra_encoder_methods
     }
 };
 
-template<
-    template<class, class> class Coder,
-    class Field, class TraceTag
->
+template<class Coder>
 void encoder(const std::string& stack)
 {
     using boost::python::arg;
     using boost::python::args;
-    using encoder_type = Coder<Field, TraceTag>;
+    using encoder_type = Coder;
 
-    std::string field = resolve_field_name<Field>();
     std::string kind = "Encoder";
-    std::string name = stack + kind + field;
+    std::string name = stack + kind;
 
     auto encoder_class =
         coder<Coder, Field, TraceTag>(name)

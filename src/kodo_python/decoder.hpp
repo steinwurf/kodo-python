@@ -26,39 +26,21 @@ void set_mutable_symbols(Decoder& decoder, PyObject* obj)
     auto symbol_storage = storage::mutable_storage(
         (uint8_t*)PyByteArray_AsString(obj),
         (uint32_t)PyByteArray_Size(obj));
-   decoder.set_mutable_symbols(symbol_storage);
+
+    decoder.set_mutable_symbols(symbol_storage);
 }
 
 template<class Decoder>
-PyObject* copy_from_symbols(Decoder& decoder)
+void set_mutable_symbol(Decoder& decoder, uint32_t index, PyObject* obj)
 {
-    std::vector<uint8_t> payload(decoder.block_size());
-    auto storage = storage::mutable_storage(
-        payload.data(), decoder.block_size());
-    decoder.copy_from_symbols(storage);
-#if PY_MAJOR_VERSION >= 3
-    return PyBytes_FromStringAndSize(
-        (char*)payload.data(), decoder.block_size());
-#else
-    return PyString_FromStringAndSize(
-        (char*)payload.data(), decoder.block_size());
-#endif
-}
+    assert(PyByteArray_Check(obj) && "The symbol storage should be a "
+           "Python bytearray object");
 
-template<class Decoder>
-PyObject* copy_from_symbol(Decoder& decoder, uint32_t index)
-{
-    std::vector<uint8_t> payload(decoder.symbol_size());
-    auto storage = storage::mutable_storage(
-        payload.data(), decoder.symbol_size());
-    decoder.copy_from_symbol(index, storage);
-#if PY_MAJOR_VERSION >= 3
-    return PyBytes_FromStringAndSize(
-        (char*)payload.data(), decoder.symbol_size());
-#else
-    return PyString_FromStringAndSize(
-        (char*)payload.data(), decoder.symbol_size());
-#endif
+    auto symbol = storage::mutable_storage(
+        (uint8_t*)PyByteArray_AsString(obj),
+        (uint32_t)PyByteArray_Size(obj));
+
+    decoder.set_mutable_symbol(index, symbol);
 }
 
 template<class Decoder>
@@ -144,7 +126,7 @@ struct extra_decoder_methods
 template<class Coder>
 void decoder(const std::string& name)
 {
-    using boost::python::arg;
+    using namespace boost::python;
     using decoder_type = Coder;
 
     auto decoder_class =
@@ -206,7 +188,12 @@ void decoder(const std::string& name)
              arg("symbols"),
              "Set the buffer where the decoded symbols should be stored.\n\n"
              "\t:param symbols: The bytearray to store the symbols.\n"
-            );
+            )
+        .def("set_mutable_symbol", &set_mutable_symbol<decoder_type>,
+             args("index", "symbol"),
+             "Set the storage for a single symbol.\n\n"
+             "\t:param index: The index of the symbol in the coding block.\n"
+             "\t:param symbol: The bytearray to store the symbol.\n");
 
     //(write_payload_method<
     // kodo_core::has_write_payload<decoder_type>::value>(decoder_class));

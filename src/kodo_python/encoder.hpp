@@ -24,15 +24,21 @@ void set_const_symbols(Encoder& encoder, PyObject* obj)
     auto symbol_storage = storage::const_storage(
         (uint8_t*)PyByteArray_AsString(obj),
         (uint32_t)PyByteArray_Size(obj));
+
     encoder.set_const_symbols(symbol_storage);
 }
 
 template<class Encoder>
-void set_const_symbol(Encoder& encoder, uint32_t index, const std::string& data)
+void set_const_symbol(Encoder& encoder, uint32_t index, PyObject* obj)
 {
-    auto storage = storage::const_storage(
-        (uint8_t*)data.c_str(), (uint32_t)data.length());
-    encoder.set_const_symbol(index, storage);
+    assert(PyByteArray_Check(obj) && "The symbol storage should be a "
+           "Python bytearray object");
+
+    auto symbol = storage::const_storage(
+        (uint8_t*)PyByteArray_AsString(obj),
+        (uint32_t)PyByteArray_Size(obj));
+
+    encoder.set_const_symbol(index, symbol);
 }
 
 template<class Encoder>
@@ -97,8 +103,7 @@ struct extra_encoder_methods
 template<class Coder>
 void encoder(const std::string& name)
 {
-    using boost::python::arg;
-    using boost::python::args;
+    using namespace boost::python;
     using encoder_type = Coder;
 
     auto encoder_class =

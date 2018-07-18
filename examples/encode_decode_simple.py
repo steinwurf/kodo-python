@@ -14,23 +14,22 @@ import kodo
 
 def main():
     """Simple example showing how to encode and decode a block of memory."""
-    # Set the number of symbols (i.e. the generation size in RLNC
-    # terminology) and the size of a symbol in bytes
+    # Choose the finite field, the number of symbols (i.e. generation size)
+    # and the symbol size in bytes
     field = kodo.field.binary
     symbols = 8
     symbol_size = 160
 
-    # In the following we will make an encoder/decoder factory.
-    # The factories are used to build actual encoders/decoders
+    # Create an encoder/decoder factory that are used to build the
+    # actual encoders/decoders
     encoder_factory = kodo.RLNCEncoderFactory(field, symbols, symbol_size)
     encoder = encoder_factory.build()
 
     decoder_factory = kodo.RLNCDecoderFactory(field, symbols, symbol_size)
     decoder = decoder_factory.build()
 
-    # Create some data to encode. In this case we make a buffer
-    # with the same size as the encoder's block size (the max.
-    # amount a single encoder can encode)
+    # Generate some random data to encode. We create a bytearray of the same
+    # size as the encoder's block size
     data_in = bytearray(os.urandom(encoder.block_size()))
 
     # Assign the data buffer to the encoder so that we can

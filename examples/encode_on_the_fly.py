@@ -22,29 +22,27 @@ def main():
     specified. This can be useful in cases where the symbols that
     should be encoded are produced on-the-fly.
     """
-    # Set the number of symbols (i.e. the generation size in RLNC
-    # terminology) and the size of a symbol in bytes
-    symbols = 42
+    # Choose the finite field, the number of symbols (i.e. generation size)
+    # and the symbol size in bytes
+    field = kodo.field.binary
+    symbols = 10
     symbol_size = 160
 
-    # In the following we will make an encoder/decoder factory.
-    # The factories are used to build actual encoders/decoders
-    encoder_factory = kodo.OnTheFlyEncoderFactoryBinary(
-        max_symbols=symbols,
-        max_symbol_size=symbol_size)
+    # Create an encoder/decoder factory that are used to build the
+    # actual encoders/decoders
+    encoder_factory = kodo.RLNCEncoderFactory(field, symbols, symbol_size)
     encoder = encoder_factory.build()
 
-    decoder_factory = kodo.OnTheFlyDecoderFactoryBinary(
-        max_symbols=symbols,
-        max_symbol_size=symbol_size)
-
+    decoder_factory = kodo.RLNCDecoderFactory(field, symbols, symbol_size)
     decoder = decoder_factory.build()
 
-    # Create some data to encode. In this case we make a buffer
-    # with the same size as the encoder's block size (the max.
-    # amount a single encoder can encode)
-    # Just for fun - fill the input data with random data
-    data_in = os.urandom(encoder.block_size())
+    # Generate some random data to encode. We create a bytearray of the same
+    # size as the encoder's block size
+    data_in = bytearray(os.urandom(encoder.block_size()))
+
+    # Define a data buffer where the symbols should be decoded
+    data_out = bytearray(decoder.block_size())
+    decoder.set_mutable_symbols(data_out)
 
     # Let's split the data into symbols and feed the encoder one symbol at a
     # time
@@ -52,7 +50,6 @@ def main():
         data_in[i:i + symbol_size] for i in range(0, len(data_in), symbol_size)
     ]
 
-    print("Processing")
     while not decoder.is_complete():
 
         # Randomly choose to insert a symbol
@@ -89,11 +86,11 @@ def main():
         print("Decoder partially decoded = {}".format(
             decoder.symbols_partially_decoded()))
 
-    print("Processing finished")
-    # The decoder is complete, now copy the symbols from the decoder
-    data_out = decoder.copy_from_symbols()
+    print("Coding finished")
 
-    # Check we properly decoded the data
+    # The decoder is complete, the decoded symbols are now available in
+    # the data_out buffer: check if it matches the data_in buffer
+    print("Checking results...")
     if data_out == data_in:
         print("Data decoded correctly")
     else:

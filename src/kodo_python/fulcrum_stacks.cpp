@@ -17,17 +17,11 @@ struct fulcrum_coder_methods
     fulcrum_coder_methods(CoderClass& coder_class)
     {
         coder_class
-        .def("max_expansion",
-             &CoderClass::wrapped_type::max_expansion,
-             "Get the maximum expansion supported.\n\n"
-             "\t:returns: The maximum expansion supported.\n"
-            )
         .def("expansion",
              &CoderClass::wrapped_type::expansion,
-             "Get the expansion factor used. The expansion factor denotes "
-             "the number of additional symbols created by the outer "
-             "code.\n\n"
-             "\t:returns: The expansion factor used.\n"
+             "Get the expansion which denotes the number of additional "
+             "symbols created by the outer code.\n\n"
+             "\t:returns: The expansion used.\n"
             )
         .def("inner_symbols",
              &CoderClass::wrapped_type::inner_symbols,
@@ -44,28 +38,17 @@ struct fulcrum_factory_methods
     {
         using boost::python::arg;
         factory_class
-        .def("max_expansion",
-             &FactoryClass::wrapped_type::max_expansion,
-             "Get the maximum expansion supported.\n\n"
-             "\t:returns: The maximum expansion supported.\n"
-            )
         .def("expansion",
              &FactoryClass::wrapped_type::expansion,
-             "Get the expansion factor used. The expansion factor denotes "
-             "the number of additional symbols created by the outer "
-             "code.\n\n"
-             "\t:returns: The expansion factor used.\n"
+             "Get the expansion which denotes the number of additional "
+             "symbols created by the outer code.\n\n"
+             "\t:returns: The expansion used.\n"
             )
         .def("set_expansion",
              &FactoryClass::wrapped_type::set_expansion,
              arg("expansion"),
-             "Sets the number of expansion symbols.\n\n"
+             "Set the number of expansion symbols.\n\n"
              "\t:param expansion: The number of expansion symbols to use.\n"
-            )
-        .def("max_inner_symbols",
-             &FactoryClass::wrapped_type::max_inner_symbols,
-             "Get the maximum number of symbols in the inner code.\n\n"
-             "\t:returns: The maximum number of symbols in the inner code.\n"
             );
     }
 };
@@ -112,10 +95,8 @@ struct extra_factory_methods<kodo_fulcrum::decoder>
 
 void create_fulcrum_stacks()
 {
-    using namespace kodo_fulcrum;
-
-    create_encoder<encoder>("Fulcrum");
-    create_decoder<decoder>("Fulcrum");
+    create_factory_and_encoder<kodo_fulcrum::encoder>("FulcrumEncoder");
+    create_factory_and_decoder<kodo_fulcrum::decoder>("FulcrumDecoder");
 }
 }
 

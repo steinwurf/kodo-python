@@ -16,28 +16,31 @@ def main():
     """Simple example showing how to encode and decode a block of memory."""
     # Set the number of symbols (i.e. the generation size in RLNC
     # terminology) and the size of a symbol in bytes
+    field = kodo.field.binary
     symbols = 8
     symbol_size = 160
 
     # In the following we will make an encoder/decoder factory.
     # The factories are used to build actual encoders/decoders
-    encoder_factory = kodo.FullVectorEncoderFactoryBinary(symbols, symbol_size)
+    encoder_factory = kodo.RLNCEncoderFactory(field, symbols, symbol_size)
     encoder = encoder_factory.build()
 
-    decoder_factory = kodo.FullVectorDecoderFactoryBinary(symbols, symbol_size)
+    decoder_factory = kodo.RLNCDecoderFactory(field, symbols, symbol_size)
     decoder = decoder_factory.build()
 
     # Create some data to encode. In this case we make a buffer
     # with the same size as the encoder's block size (the max.
     # amount a single encoder can encode)
-    # Just for fun - fill the input data with random data
-    data_in = os.urandom(encoder.block_size())
+    data_in = bytearray(os.urandom(encoder.block_size()))
 
     # Assign the data buffer to the encoder so that we can
     # produce encoded symbols
     encoder.set_const_symbols(data_in)
 
-    print("Processing")
+    # Define a data buffer where the symbols should be decoded
+    data_out = bytearray(decoder.block_size())
+    decoder.set_mutable_symbols(data_out)
+
     packet_number = 0
     while not decoder.is_complete():
         # Generate an encoded packet
@@ -50,13 +53,11 @@ def main():
         packet_number += 1
         print("rank: {}/{}".format(decoder.rank(), decoder.symbols()))
 
-    print("Processing finished")
+    print("Coding finished")
 
-    # The decoder is complete, now copy the symbols from the decoder
-    data_out = decoder.copy_from_symbols()
-
-    # Check if we properly decoded the data
-    print("Checking results")
+    # The decoder is complete, the decoded symbols are now available in
+    # the data_out buffer: check if it matches the data_in buffer
+    print("Checking results...")
     if data_out == data_in:
         print("Data decoded correctly")
     else:

@@ -85,8 +85,7 @@ auto coder(const std::string& name) ->
              "how many symbols are available for encoding.\n\n"
              "\t:returns: The rank.\n"
             )
-        .def("set_trace_callback",
-             &set_trace_callback<coder_type::wrapped_type>,
+        .def("set_trace_callback", &set_trace_callback<coder_type>,
              boost::python::arg("callback"),
              "Write the trace information to a callback.\n\n"
              "\t:param callback: The callback which is called with the zone "

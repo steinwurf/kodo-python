@@ -14,10 +14,21 @@
 #include <storage/storage.hpp>
 
 #include "coder.hpp"
-#include "resolve_field_name.hpp"
 
 namespace kodo_python
 {
+template<class Decoder>
+void set_mutable_symbols(Decoder& decoder, PyObject* obj)
+{
+    assert(PyByteArray_Check(obj) && "The symbol storage should be a "
+           "Python bytearray object");
+
+    auto symbol_storage = storage::mutable_storage(
+        (uint8_t*)PyByteArray_AsString(obj),
+        (uint32_t)PyByteArray_Size(obj));
+   decoder.set_mutable_symbols(symbol_storage);
+}
+
 template<class Decoder>
 PyObject* copy_from_symbols(Decoder& decoder)
 {
@@ -131,16 +142,13 @@ struct extra_decoder_methods
 };
 
 template<class Coder>
-void decoder(const std::string& stack)
+void decoder(const std::string& name)
 {
     using boost::python::arg;
     using decoder_type = Coder;
 
-    std::string kind = "Decoder";
-    std::string name = stack + kind;
-
     auto decoder_class =
-        coder<Coder, Field, TraceTag>(name)
+        coder<Coder>(name)
         .def("read_payload", &read_payload<decoder_type>, arg("symbol_data"),
              "Decode the provided encoded symbol.\n\n"
              "\t:param symbol_data: The encoded symbol.\n"
@@ -194,24 +202,18 @@ void decoder(const std::string& stack)
              "\t:return: True if the symbol is partially decoded otherwise\n"
              "\t         false.\n"
             )
-        .def("copy_from_symbol", &copy_from_symbol<decoder_type>,
-             arg("index"),
-             "Return the decoded symbol.\n\n"
-             "\t:param index: Index of the symbol to return.\n"
-             "\t:returns: The decoded symbol.\n"
-            )
-        .def("copy_from_symbols", &copy_from_symbols<decoder_type>,
-             "Return the decoded symbols.\n\n"
-             "\t:returns: The decoded symbols.\n"
+        .def("set_mutable_symbols", &set_mutable_symbols<decoder_type>,
+             arg("symbols"),
+             "Set the buffer where the decoded symbols should be stored.\n\n"
+             "\t:param symbols: The bytearray to store the symbols.\n"
             );
 
+    //(write_payload_method<
+    // kodo_core::has_write_payload<decoder_type>::value>(decoder_class));
 
-    (write_payload_method<
-     kodo_core::has_write_payload<decoder_type>::value>(decoder_class));
-
-    (is_partially_complete_method<
-     kodo_core::has_partial_decoding_tracker<decoder_type>::value>(
-         decoder_class));
+    //(is_partially_complete_method<
+    // kodo_core::has_partial_decoding_tracker<decoder_type>::value>(
+    //     decoder_class));
 
     (extra_decoder_methods<Coder>(decoder_class));
 }

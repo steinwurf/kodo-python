@@ -80,8 +80,8 @@ struct extra_decoder_methods<kodo_perpetual::decoder>
 
 void create_perpetual_stacks()
 {
-    create_encoder<kodo_perpetual::encoder>("Perpetual");
-    create_decoder<kodo_perpetual::decoder>("Perpetual");
+    create_factory_and_encoder<kodo_perpetual::encoder>("PerpetualEncoder");
+    create_factory_and_decoder<kodo_perpetual::decoder>("PerpetualDecoder");
 }
 }
 

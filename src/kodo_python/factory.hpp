@@ -9,8 +9,6 @@
 
 #include <boost/python.hpp>
 
-#include "resolve_field_name.hpp"
-
 namespace kodo_python
 {
 template<class Coder>
@@ -33,18 +31,14 @@ void factory(const std::string& stack)
     using stack_type = Coder;
     using factory_type = typename stack_type::factory;
 
-    //std::string field = resolve_field_name<Field>();
-    std::string coder =
-        kodo_core::has_is_complete<stack_type>::value ? "Decoder" : "Encoder";
-    std::string kind = coder + std::string("Factory");
-    std::string name = stack + kind + field;
+    std::string name = stack + std::string("Factory");
 
     auto factory_class =
         class_<factory_type, boost::noncopyable>(
             name.c_str(),
             "Factory for creating encoders/decoders.",
-            init<uint32_t, uint32_t>(
-                args("symbols", "symbol_size"),
+            init<fifi::api::field, uint32_t, uint32_t>(
+                args("field", "symbols", "symbol_size"),
                 "Factory constructor.\n\n"
                 "\t:param symbols: "
                 "The number of symbols in a block.\n"
@@ -69,7 +63,7 @@ void factory(const std::string& stack)
         .def("symbol_size", &factory_type::symbol_size,
              "Return the symbol size in bytes.\n\n"
              "\t:returns: The symbol size in bytes.\n"
-            )
+            );
 
 
     (extra_factory_methods<Coder>(factory_class));

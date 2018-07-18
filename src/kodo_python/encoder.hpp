@@ -5,22 +5,26 @@
 
 #pragma once
 
+#include <cassert>
 #include <string>
 #include <vector>
 
 #include <boost/python.hpp>
 
 #include "coder.hpp"
-#include "resolve_field_name.hpp"
 
 namespace kodo_python
 {
 template<class Encoder>
-void set_const_symbols(Encoder& encoder, const std::string& data)
+void set_const_symbols(Encoder& encoder, PyObject* obj)
 {
-    auto storage = storage::const_storage(
-        (uint8_t*)data.c_str(), (uint32_t)data.length());
-    encoder.set_const_symbols(storage);
+    assert(PyByteArray_Check(obj) && "The symbol storage should be a "
+           "Python bytearray object");
+
+    auto symbol_storage = storage::const_storage(
+        (uint8_t*)PyByteArray_AsString(obj),
+        (uint32_t)PyByteArray_Size(obj));
+    encoder.set_const_symbols(symbol_storage);
 }
 
 template<class Encoder>
@@ -91,17 +95,14 @@ struct extra_encoder_methods
 };
 
 template<class Coder>
-void encoder(const std::string& stack)
+void encoder(const std::string& name)
 {
     using boost::python::arg;
     using boost::python::args;
     using encoder_type = Coder;
 
-    std::string kind = "Encoder";
-    std::string name = stack + kind;
-
     auto encoder_class =
-        coder<Coder, Field, TraceTag>(name)
+        coder<Coder>(name)
         .def("write_payload", &encoder_write_payload<encoder_type>,
              "Encode a symbol.\n\n"
              "\t:returns: The encoded symbol.\n"
@@ -117,8 +118,8 @@ void encoder(const std::string& stack)
              "\t:param index: The index of the symbol in the coding block.\n"
              "\t:param symbol: The actual data of that symbol.\n");
 
-    (systematic_encoder_methods<
-     kodo_core::has_set_systematic_off<encoder_type>::value>(encoder_class));
+    //(systematic_encoder_methods<
+    // kodo_core::has_set_systematic_off<encoder_type>::value>(encoder_class));
 
     (extra_encoder_methods<Coder>(encoder_class));
 }

@@ -16,8 +16,8 @@ void create_carousel_stacks()
 {
     using namespace kodo_core::nocode;
 
-    create_factory_and_encoder<carousel_encoder>("NoCode");
-    create_factory_and_decoder<carousel_decoder>("NoCode");
+    create_factory_and_encoder<carousel_encoder>("NoCodeEncoder");
+    create_factory_and_decoder<carousel_decoder>("NoCodeDecoder");
 }
 }
 

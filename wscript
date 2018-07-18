@@ -96,11 +96,30 @@ def build(bld):
     bld.env['CFLAGS_PYEXT'] = []
     bld.env['CXXFLAGS_PYEXT'] = []
 
+    extra_linkflags = []
     CXX = bld.env.get_flat("CXX")
     if 'g++' in CXX or 'clang' in CXX:
         bld.env.append_value('CXXFLAGS', '-fPIC')
+    # Matches MSVC
+    if 'CL.exe' in CXX or 'cl.exe' in CXX:
+        extra_linkflags = ['/EXPORT:initkodo']
 
-    bld.recurse('src/kodo_python')
+    bld(features='cxx cxxshlib pyext',
+        source=bld.path.ant_glob('src/kodo_python/**/*.cpp'),
+        target='kodo',
+        name='kodo-python',
+        linkflags=extra_linkflags,
+        use=[
+            'STEINWURF_VERSION',
+            'KODO_PYTHON_COMMON',
+            'boost_includes',
+            'boost_python',
+            'kodo_core',
+            'kodo_rlnc',
+            'kodo_perpetual',
+            'kodo_fulcrum'
+        ]
+    )
 
     if bld.is_toplevel():
         if bld.has_tool_option('run_tests'):
@@ -110,7 +129,7 @@ def build(bld):
 def exec_test_python(bld):
     python = bld.env['PYTHON'][0]
     env = dict(os.environ)
-    env['PYTHONPATH'] = os.path.join(bld.out_dir, 'src', 'kodo_python')
+    env['PYTHONPATH'] = os.path.join(bld.out_dir)
 
     # First, run the unit tests in the 'test' folder
     if os.path.exists('test'):
@@ -120,9 +139,9 @@ def exec_test_python(bld):
                 bld.cmd_and_log('{0} {1}\n'.format(python, test), env=env)
 
     # Then run the examples in the 'examples' folder
-    if os.path.exists('examples'):
-        for f in sorted(os.listdir('examples')):
-            if f.endswith('.py'):
-                example = os.path.join('examples', f)
-                bld.cmd_and_log(
-                    '{0} {1} --dry-run\n'.format(python, example), env=env)
+#    if os.path.exists('examples'):
+#        for f in sorted(os.listdir('examples')):
+#            if f.endswith('.py'):
+#                example = os.path.join('examples', f)
+#                bld.cmd_and_log(
+#                    '{0} {1} --dry-run\n'.format(python, example), env=env)

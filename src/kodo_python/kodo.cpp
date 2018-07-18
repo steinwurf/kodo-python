@@ -7,6 +7,8 @@
 
 #include <string>
 
+#include <fifi/api/field.hpp>
+
 namespace kodo_python
 {
 // Forward declarations of "create" functions implemented in other cpp files
@@ -17,6 +19,14 @@ void create_fulcrum_stacks();
 
 void create_stacks()
 {
+    using namespace boost::python;
+
+    enum_<fifi::api::field>("field")
+    .value("binary", fifi::api::field::binary)
+    .value("binary4", fifi::api::field::binary4)
+    .value("binary8", fifi::api::field::binary8)
+    .value("binary16", fifi::api::field::binary16);
+
 #if !defined(KODO_PYTHON_DISABLE_NOCODE)
     create_carousel_stacks();
 #endif

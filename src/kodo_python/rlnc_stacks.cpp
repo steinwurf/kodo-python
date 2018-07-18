@@ -29,7 +29,7 @@ struct extra_encoder_methods<kodo_rlnc::encoder>
              &EncoderClass::wrapped_type::density,
              "Get the density of the coefficients generated.\n\n"
              "\t:returns: The density of the generator.\n"
-            )
+            );
     }
 };
 
@@ -43,10 +43,10 @@ struct extra_decoder_methods<kodo_rlnc::decoder>
     }
 };
 
-void create_full_vector_stacks()
+void create_rlnc_stacks()
 {
-    create_encoder<kodo_rlnc::encoder>("RLNC");
-    create_decoder<kodo_rlnc::decoder>("RLNC");
+    create_factory_and_encoder<kodo_rlnc::encoder>("RLNCEncoder");
+    create_factory_and_decoder<kodo_rlnc::decoder>("RLNCDecoder");
 }
 }
 

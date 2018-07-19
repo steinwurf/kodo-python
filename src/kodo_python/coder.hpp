@@ -31,6 +31,7 @@ auto coder(const std::string& name) ->
     using namespace boost::python;
 
     using coder_type = Coder;
+
     auto coder_class = class_<coder_type, boost::noncopyable>(
         name.c_str(), "An (en/de)coder", no_init)
         .def("payload_size", &coder_type::payload_size,

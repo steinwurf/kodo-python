@@ -19,7 +19,7 @@ def main():
     In Network Coding applications one of the key features is the
     ability of intermediate nodes in the network to recode packets
     as they traverse them. In Kodo it is possible to recode packets
-    in decoders which provide the recode() function.
+    in decoders which provide the write_payload() function.
 
     This example shows how to use one encoder and two decoders to
     simulate a simple relay network as shown below (for simplicity

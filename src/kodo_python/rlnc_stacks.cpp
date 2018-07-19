@@ -66,8 +66,32 @@ struct extra_decoder_methods<kodo_rlnc::decoder>
     }
 };
 
+template<>
+struct extra_factory_methods<kodo_rlnc::encoder>
+{
+    template<class FactoryClass>
+    extra_factory_methods(FactoryClass& factory_class)
+    {
+        using boost::python::arg;
+
+        factory_class
+        .def("set_coding_vector_format",
+             &FactoryClass::wrapped_type::set_coding_vector_format,
+             arg("format"),
+             "Set the coding vector format for encoded payloads.\n\n"
+             "\t:param format: The selected coding vector format,\n");
+    }
+};
+
 void create_rlnc_stacks()
 {
+    using namespace boost::python;
+
+    enum_<kodo_rlnc::coding_vector_format>("coding_vector_format")
+    .value("full_vector", kodo_rlnc::coding_vector_format::full_vector)
+    .value("seed", kodo_rlnc::coding_vector_format::seed)
+    .value("sparse_seed", kodo_rlnc::coding_vector_format::sparse_seed);
+
     create_factory_and_encoder<kodo_rlnc::encoder>("RLNCEncoder");
     create_factory_and_decoder<kodo_rlnc::decoder>("RLNCDecoder");
 }

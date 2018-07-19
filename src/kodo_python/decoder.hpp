@@ -78,6 +78,7 @@ template<class Coder>
 void decoder(const std::string& name)
 {
     using namespace boost::python;
+
     using decoder_type = Coder;
 
     auto decoder_class =

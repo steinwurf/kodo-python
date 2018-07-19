@@ -50,14 +50,17 @@ std::string version()
     version += STEINWURF_KODO_PYTHON_VERSION;
 
     // Add dependency versions:
+
     version += std::string("\n\tboost: ");
 #ifdef STEINWURF_BOOST_VERSION
     version += std::string(STEINWURF_BOOST_VERSION);
 #endif
+
     version += std::string("\n\tcpuid: ");
 #ifdef STEINWURF_CPUID_VERSION
     version += std::string(STEINWURF_CPUID_VERSION);
 #endif
+
     version += std::string("\n\tfifi: ");
 #ifdef STEINWURF_FIFI_VERSION
     version += std::string(STEINWURF_FIFI_VERSION);
@@ -88,7 +91,6 @@ std::string version()
     version += std::string(STEINWURF_KODO_FULCRUM_VERSION);
 #endif
 #endif
-
 
     version += std::string("\n\tplatform: ");
 #ifdef STEINWURF_PLATFORM_VERSION

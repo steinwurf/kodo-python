@@ -67,6 +67,7 @@ template<class Coder>
 void encoder(const std::string& name)
 {
     using namespace boost::python;
+
     using encoder_type = Coder;
 
     auto encoder_class =

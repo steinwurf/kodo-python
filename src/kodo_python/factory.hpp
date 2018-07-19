@@ -24,10 +24,8 @@ struct extra_factory_methods
 template<class Coder>
 void factory(const std::string& stack)
 {
-    using boost::python::arg;
-    using boost::python::args;
-    using boost::python::class_;
-    using boost::python::init;
+    using namespace boost::python;
+
     using stack_type = Coder;
     using factory_type = typename stack_type::factory;
 
@@ -43,7 +41,7 @@ void factory(const std::string& stack)
             "\t:param symbol_size: The size of a symbol in bytes.\n"))
         .def("build", &factory_type::build,
              "Build the actual coder.\n\n"
-             "\t:returns: An instantiation of a coder.\n")
+             "\t:returns: A coder instance.\n")
         .def("set_symbols", &factory_type::set_symbols, arg("symbols"),
              "Set the number of symbols.\n\n"
              "\t:param symbols: The number of symbols.\n")

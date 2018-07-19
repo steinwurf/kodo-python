@@ -24,43 +24,39 @@ def main():
     symbols which has not previously been sent uncoded. Kodo allows this
     feature to be optionally turn of or off.
     """
-    # Set the number of symbols (i.e. the generation size in RLNC
-    # terminology) and the size of a symbol in bytes
-    symbols = 16
+    # Choose the finite field, the number of symbols (i.e. generation size)
+    # and the symbol size in bytes
+    field = kodo.field.binary
+    symbols = 10
     symbol_size = 160
 
-    # In the following we will make an encoder/decoder factory.
-    # The factories are used to build actual encoders/decoders
-    encoder_factory = kodo.FullVectorEncoderFactoryBinary(
-        max_symbols=symbols,
-        max_symbol_size=symbol_size)
-
+    # Create an encoder/decoder factory that are used to build the
+    # actual encoders/decoders
+    encoder_factory = kodo.RLNCEncoderFactory(field, symbols, symbol_size)
     encoder = encoder_factory.build()
 
-    decoder_factory = kodo.FullVectorDecoderFactoryBinary(
-        max_symbols=symbols,
-        max_symbol_size=symbol_size)
-
+    decoder_factory = kodo.RLNCDecoderFactory(field, symbols, symbol_size)
     decoder = decoder_factory.build()
 
-    # Create some data to encode. In this case we make a buffer
-    # with the same size as the encoder's block size (the max.
-    # amount a single encoder can encode)
-    # Just for fun - fill the input data with random data
-    data_in = os.urandom(encoder.block_size())
-
-    # Assign the data buffer to the encoder so that we may start
-    # to produce encoded symbols from it
+    # Generate some random data to encode. We create a bytearray of the same
+    # size as the encoder's block size and assign it to the encoder.
+    # This bytearray must not go out of scope while the encoder exists!
+    data_in = bytearray(os.urandom(encoder.block_size()))
     encoder.set_const_symbols(data_in)
 
-    print("Starting encoding / decoding")
+    # Define the data_out bytearray where the symbols should be decoded
+    # This bytearray must not go out of scope while the encoder exists!
+    data_out = bytearray(decoder.block_size())
+    decoder.set_mutable_symbols(data_out)
+
+    print("Starting encoding / decoding...")
 
     while not decoder.is_complete():
 
         # If the chosen codec stack supports systematic coding
         if 'is_systematic_on' in dir(encoder):
 
-            # With 50% probability toggle systematic
+            # Toggle systematic mode with 50% probability
             if random.choice([True, False]):
 
                 if encoder.is_systematic_on():
@@ -74,7 +70,7 @@ def main():
         packet = encoder.write_payload()
 
         if random.choice([True, False]):
-            print("Drop packet")
+            print("Packet dropped.")
             continue
 
         # Pass that packet to the decoder
@@ -87,10 +83,9 @@ def main():
         # decoded
         print("Symbols decoded {}".format(decoder.symbols_uncoded()))
 
-    # The decoder is complete, now copy the symbols from the decoder
-    data_out = decoder.copy_from_symbols()
-
-    # Check we properly decoded the data
+    # The decoder is complete, the decoded symbols are now available in
+    # the data_out buffer: check if it matches the data_in buffer
+    print("Checking results...")
     if data_out == data_in:
         print("Data decoded correctly")
     else:

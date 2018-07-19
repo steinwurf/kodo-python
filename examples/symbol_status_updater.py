@@ -15,19 +15,18 @@ import kodo
 
 def main():
     """Example showing the result of enabling the symbol status updater."""
-    # Set the number of symbols (i.e. the generation size in RLNC
-    # terminology) and the size of a symbol in bytes
+    # Choose the finite field, the number of symbols (i.e. generation size)
+    # and the symbol size in bytes
+    field = kodo.field.binary
     symbols = 50
     symbol_size = 160
 
-    # In the following we will make an encoder/decoder factory.
-    # The factories are used to build actual encoders/decoders
-    # To show the effect of the symbol status updater we need to use a lower
-    # sized field - the lower the better.
-    encoder_factory = kodo.FullVectorEncoderFactoryBinary(symbols, symbol_size)
+    # Create an encoder/decoder factory that are used to build the
+    # actual encoders/decoders
+    encoder_factory = kodo.RLNCEncoderFactory(field, symbols, symbol_size)
     encoder = encoder_factory.build()
 
-    decoder_factory = kodo.FullVectorDecoderFactoryBinary(symbols, symbol_size)
+    decoder_factory = kodo.RLNCDecoderFactory(field, symbols, symbol_size)
     # Create two decoders, one which has the status updater turned on, and one
     # which has it off.
     decoder1 = decoder_factory.build()
@@ -40,15 +39,18 @@ def main():
     print("decoder 2 status updater: {}".format(
         decoder2.is_status_updater_enabled()))
 
-    # Create some data to encode. In this case we make a buffer
-    # with the same size as the encoder's block size (the max.
-    # amount a single encoder can encode)
-    # Just for fun - fill the input data with random data
-    data_in = os.urandom(encoder.block_size())
-
-    # Assign the data buffer to the encoder so that we can
-    # produce encoded symbols
+    # Generate some random data to encode. We create a bytearray of the same
+    # size as the encoder's block size and assign it to the encoder.
+    # This bytearray must not go out of scope while the encoder exists!
+    data_in = bytearray(os.urandom(encoder.block_size()))
     encoder.set_const_symbols(data_in)
+
+    # Define the data_out bytearray where the symbols should be decoded
+    # This bytearray must not go out of scope while the encoder exists!
+    data_out1 = bytearray(decoder1.block_size())
+    data_out2 = bytearray(decoder1.block_size())
+    decoder1.set_mutable_symbols(data_out1)
+    decoder2.set_mutable_symbols(data_out2)
 
     # Skip the systematic phase as the effect of the symbol status decoder is
     # only visible when reading coded packets.
@@ -58,8 +60,8 @@ def main():
     while not decoder1.is_complete():
         # Generate an encoded packet
         payload = encoder.write_payload()
-
         payload_copy = copy.copy(payload)
+
         # Pass that packet to the decoder
         decoder1.read_payload(payload)
         decoder2.read_payload(payload_copy)
@@ -69,11 +71,7 @@ def main():
 
     print("Processing finished")
 
-    # The decoder is complete, now copy the symbols from the decoder
-    data_out1 = decoder1.copy_from_symbols()
-    data_out2 = decoder2.copy_from_symbols()
-
-    # Check if we properly decoded the data
+    # Check if both decoders properly decoded the original data
     print("Checking results")
     if data_out1 == data_in and data_out2 == data_in:
         print("Data decoded correctly")

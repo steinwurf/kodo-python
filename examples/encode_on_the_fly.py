@@ -40,7 +40,8 @@ def main():
     # size as the encoder's block size
     data_in = bytearray(os.urandom(encoder.block_size()))
 
-    # Define a data buffer where the symbols should be decoded
+    # Define the data_out bytearray where the symbols should be decoded
+    # This bytearray must not go out of scope while the encoder exists!
     data_out = bytearray(decoder.block_size())
     decoder.set_mutable_symbols(data_out)
 

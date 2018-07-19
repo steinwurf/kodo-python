@@ -18,40 +18,30 @@ def main():
     This Example shows how to use the additional settings and parameters
     supported by the fulcrum code.
     """
-    if not hasattr(kodo, 'FulcrumEncoderFactoryBinary8'):
+    if not hasattr(kodo, 'FulcrumEncoderFactory'):
         print("The fulcrum codec is not available")
         return
 
-    # Set the number of symbols (i.e. the generation size in RLNC terminology)
-    # and the size of a symbol in bytes
+    # Choose the finite field, the number of symbols (i.e. generation size)
+    # and the symbol size in bytes
+    field = kodo.field.binary8
     symbols = 24
     symbol_size = 160
 
     # Create encoder/decoder factory used to build actual encoders/decoders
-    encoder_factory = kodo.FulcrumEncoderFactoryBinary8(symbols, symbol_size)
-    decoder_factory = kodo.FulcrumDecoderFactoryBinary8(symbols, symbol_size)
+    encoder_factory = kodo.FulcrumEncoderFactory(field, symbols, symbol_size)
+    decoder_factory = kodo.FulcrumDecoderFactory(field, symbols, symbol_size)
 
-    # The expansion factor denotes the number of additional symbols created by
+    # The expansion denotes the number of additional symbols created by
     # the outer code.
     print(
         "The default values for the fulcrum factories are the following:\n"
         "\tSymbols: {}\n"
-        "\tMax expansion: {}\n"
-        "\tExpansion: {}\n"
-        "\tMax inner symbols: {}".format(
-            encoder_factory.max_symbols(),
-            encoder_factory.max_expansion(),
-            encoder_factory.expansion(),
-            encoder_factory.max_inner_symbols()))
+        "\tExpansion: {}".format(
+            encoder_factory.symbols(),
+            encoder_factory.expansion()))
 
-    new_expansion = encoder_factory.max_expansion() - 1
-
-    print("Let's set the encoder factory's expansion to {}.".format(
-        new_expansion))
-
-    encoder_factory.set_expansion(new_expansion)
-
-    # now let's build the coders
+    # Now let's build the coders
     encoder = encoder_factory.build()
     decoder = decoder_factory.build()
 
@@ -72,15 +62,16 @@ def main():
             decoder.expansion(),
             decoder.inner_symbols()))
 
-    # Create some data to encode. In this case we make a buffer
-    # with the same size as the encoder's block size (the max.
-    # amount a single encoder can encode)
-    # Just for fun - fill the input data with random data
-    data_in = os.urandom(encoder.block_size())
-
-    # Assign the data buffer to the encoder so that we can
-    # produce encoded symbols
+    # Generate some random data to encode. We create a bytearray of the same
+    # size as the encoder's block size and assign it to the encoder.
+    # This bytearray must not go out of scope while the encoder exists!
+    data_in = bytearray(os.urandom(encoder.block_size()))
     encoder.set_const_symbols(data_in)
+
+    # Define the data_out bytearray where the symbols should be decoded
+    # This bytearray must not go out of scope while the encoder exists!
+    data_out = bytearray(decoder.block_size())
+    decoder.set_mutable_symbols(data_out)
 
     while not decoder.is_complete():
         # Encode a packet into the payload buffer
@@ -89,10 +80,8 @@ def main():
         # Pass that packet to the decoder
         decoder.read_payload(payload)
 
-    # The decoder is complete, now copy the symbols from the decoder
-    data_out = decoder.copy_from_symbols()
-
-    # Check we properly decoded the data
+    # The decoder is complete, the decoded symbols are now available in
+    # the data_out buffer: check if it matches the data_in buffer
     if data_out == data_in:
         print("Data decoded correctly")
     else:

@@ -14,48 +14,47 @@ import kodo
 
 
 def main():
-    """An example of how to use the trace functionality."""
-    # Set the number of symbols (i.e. the generation size in RLNC
-    # terminology) and the size of a symbol in bytes
-    symbols = 8
+    """An example for using the trace functionality."""
+    # Choose the finite field, the number of symbols (i.e. generation size)
+    # and the symbol size in bytes
+    field = kodo.field.binary8
+    symbols = 5
     symbol_size = 16
 
-    # In the following we will make an encoder/decoder factory.
-    # The factories are used to build actual encoders/decoders
-    encoder_factory = kodo.FullVectorEncoderFactoryBinary8(
-        max_symbols=symbols,
-        max_symbol_size=symbol_size)
+    # Create an encoder/decoder factory that are used to build the
+    # actual encoders/decoders
+    encoder_factory = kodo.RLNCEncoderFactory(field, symbols, symbol_size)
     encoder = encoder_factory.build()
 
-    decoder_factory = kodo.FullVectorDecoderFactoryBinary8(
-        max_symbols=symbols,
-        max_symbol_size=symbol_size)
-
+    decoder_factory = kodo.RLNCDecoderFactory(field, symbols, symbol_size)
     decoder = decoder_factory.build()
 
-    # Create some data to encode. In this case we make a buffer
-    # with the same size as the encoder's block size (the max.
-    # amount a single encoder can encode)
-    # Just for fun - fill the input data with random data
-    data_in = os.urandom(encoder.block_size())
+    # Generate some random data to encode. We create a bytearray of the same
+    # size as the encoder's block size and assign it to the encoder.
+    # This bytearray must not go out of scope while the encoder exists!
+    data_in = bytearray(os.urandom(encoder.block_size()))
+    encoder.set_const_symbols(data_in)
+
+    # Define the data_out bytearray where the symbols should be decoded
+    # This bytearray must not go out of scope while the encoder exists!
+    data_out = bytearray(decoder.block_size())
+    decoder.set_mutable_symbols(data_out)
 
     # Setup tracing
 
     # Enable the stdout trace function of the encoder
     encoder.set_trace_stdout()
+    encoder.set_zone_prefix("encoder")
 
     # Define a custom trace function for the decoder which filters the
     # trace message based on their zones
     def callback_function(zone, message):
-        if zone in ["decoder_state", "input_symbol_coefficients"]:
+        if zone in ["decoder_state", "symbol_coefficients_before_read_symbol"]:
             print("{}:".format(zone))
             print(message)
 
     decoder.set_trace_callback(callback_function)
 
-    # Assign the data buffer to the encoder so that we may start
-    # to produce encoded symbols from it
-    encoder.set_const_symbols(data_in)
     while not decoder.is_complete():
 
         # Encode a packet into the payload buffer
@@ -69,15 +68,15 @@ def main():
         # to full coding, in which case you will see the full encoding
         # vectors being sent and received.
         if random.choice([True, False]):
+            print("Packet dropped.\n")
             continue
 
         # Pass that packet to the decoder
         decoder.read_payload(packet)
 
-    # The decoder is complete, now copy the symbols from the decoder
-    data_out = decoder.copy_from_symbols()
-
-    # Check we properly decoded the data
+    # The decoder is complete, the decoded symbols are now available in
+    # the data_out buffer: check if it matches the data_in buffer
+    print("Checking results...")
     if data_out == data_in:
         print("Data decoded correctly")
     else:

@@ -29,14 +29,13 @@ def main():
     decoder = decoder_factory.build()
 
     # Generate some random data to encode. We create a bytearray of the same
-    # size as the encoder's block size
+    # size as the encoder's block size and assign it to the encoder.
+    # This bytearray must not go out of scope while the encoder exists!
     data_in = bytearray(os.urandom(encoder.block_size()))
-
-    # Assign the data buffer to the encoder so that we can
-    # produce encoded symbols
     encoder.set_const_symbols(data_in)
 
-    # Define a data buffer where the symbols should be decoded
+    # Define the data_out bytearray where the symbols should be decoded
+    # This bytearray must not go out of scope while the encoder exists!
     data_out = bytearray(decoder.block_size())
     decoder.set_mutable_symbols(data_out)
 

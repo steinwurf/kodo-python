@@ -8,7 +8,7 @@
 namespace kodo_python
 {
 template<class DecoderClass>
-inline void symbol_decoding_status_updater_methods(DecoderClass& decoder_class)
+static void symbol_decoding_status_updater_methods(DecoderClass& decoder_class)
 {
     decoder_class
     .def("set_status_updater_on",

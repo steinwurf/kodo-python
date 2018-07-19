@@ -9,6 +9,7 @@
 
 #include "create_helpers.hpp"
 #include "symbol_decoding_status_updater_methods.hpp"
+#include "systematic_encoder_methods.hpp"
 
 namespace kodo_python
 {
@@ -30,6 +31,8 @@ struct extra_encoder_methods<kodo_rlnc::encoder>
              "Get the density of the coefficients generated.\n\n"
              "\t:returns: The density of the generator.\n"
             );
+
+        systematic_encoder_methods(encoder_class);
     }
 };
 
@@ -39,7 +42,19 @@ struct extra_decoder_methods<kodo_rlnc::decoder>
     template<class DecoderClass>
     extra_decoder_methods(DecoderClass& decoder_class)
     {
-        symbol_decoding_status_updater_methods<DecoderClass>(decoder_class);
+        decoder_class
+        .def("write_payload",
+             &decoder_write_payload<typename DecoderClass::wrapped_type>,
+             "Recode symbol.\n\n"
+             "\t:returns: The recoded symbol.\n"
+            )
+        .def("is_partially_complete",
+             &DecoderClass::wrapped_type::is_partially_complete,
+             "Check whether the decoding matrix is partially decoded.\n\n"
+             "\t:returns: True if the decoding matrix is partially decoded.\n"
+            );
+
+        symbol_decoding_status_updater_methods(decoder_class);
     }
 };
 

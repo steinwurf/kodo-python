@@ -64,55 +64,6 @@ void read_payload(Decoder& decoder, const std::string& data)
     decoder.read_payload(payload.data());
 }
 
-template<bool HasPartialDecodingTracker>
-struct is_partially_complete_method
-{
-    template<class DecoderClass>
-    is_partially_complete_method(DecoderClass& decoder_class)
-    {
-        (void) decoder_class;
-    }
-};
-
-template<>
-struct is_partially_complete_method<true>
-{
-    template<class DecoderClass>
-    is_partially_complete_method(DecoderClass& decoder_class)
-    {
-        decoder_class
-        .def("is_partially_complete",
-             &DecoderClass::wrapped_type::is_partially_complete,
-             "Check whether the decoding matrix is partially decoded.\n\n"
-             "\t:returns: True if the decoding matrix is partially decoded.\n");
-    }
-};
-
-template<bool HasWritePayload>
-struct write_payload_method
-{
-    template<class DecoderClass>
-    write_payload_method(DecoderClass& decoder_class)
-    {
-        (void) decoder_class;
-    }
-};
-
-template<>
-struct write_payload_method<true>
-{
-    template<class DecoderClass>
-    write_payload_method(DecoderClass& decoder_class)
-    {
-        decoder_class
-        .def("write_payload",
-             &decoder_write_payload<typename DecoderClass::wrapped_type>,
-             "Recode symbol.\n\n"
-             "\t:returns: The recoded symbol.\n"
-            );
-    }
-};
-
 template<class Coder>
 struct extra_decoder_methods
 {
@@ -194,13 +145,6 @@ void decoder(const std::string& name)
              "Set the storage for a single symbol.\n\n"
              "\t:param index: The index of the symbol in the coding block.\n"
              "\t:param symbol: The bytearray to store the symbol.\n");
-
-    //(write_payload_method<
-    // kodo_core::has_write_payload<decoder_type>::value>(decoder_class));
-
-    //(is_partially_complete_method<
-    // kodo_core::has_partial_decoding_tracker<decoder_type>::value>(
-    //     decoder_class));
 
     (extra_decoder_methods<Coder>(decoder_class));
 }

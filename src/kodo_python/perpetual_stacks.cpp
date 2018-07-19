@@ -9,6 +9,7 @@
 
 #include "create_helpers.hpp"
 #include "symbol_decoding_status_updater_methods.hpp"
+#include "systematic_encoder_methods.hpp"
 
 namespace kodo_python
 {
@@ -74,6 +75,13 @@ struct extra_decoder_methods<kodo_perpetual::decoder>
     template<class DecoderClass>
     extra_decoder_methods(DecoderClass& decoder_class)
     {
+        decoder_class
+        .def("write_payload",
+             &decoder_write_payload<typename DecoderClass::wrapped_type>,
+             "Recode symbol.\n\n"
+             "\t:returns: The recoded symbol.\n"
+            );
+
         symbol_decoding_status_updater_methods<DecoderClass>(decoder_class);
     }
 };

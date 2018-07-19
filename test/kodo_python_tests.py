@@ -78,6 +78,10 @@ class TestEncodeDecode(unittest.TestCase):
         data_out = bytearray(decoder.block_size())
         decoder.set_mutable_symbols(data_out)
 
+        # Turn off systematic mode to test with coded symbols from the start
+        if 'set_systematic_off' in dir(encoder):
+            encoder.set_systematic_off()
+
         while not decoder.is_complete():
             # Generate an encoded packet
             packet = encoder.write_payload()

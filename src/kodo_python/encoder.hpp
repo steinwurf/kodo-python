@@ -53,43 +53,6 @@ PyObject* encoder_write_payload(Encoder& encoder)
 #endif
 }
 
-template<bool IsSystematicEncoder>
-struct systematic_encoder_methods
-{
-    template<class EncoderClass>
-    systematic_encoder_methods(EncoderClass& encoder_class)
-    {
-        (void) encoder_class;
-    }
-};
-
-template<>
-struct systematic_encoder_methods<true>
-{
-    template<class EncoderClass>
-    systematic_encoder_methods(EncoderClass& encoder_class)
-    {
-        encoder_class
-        .def("is_systematic_on",
-             &EncoderClass::wrapped_type::is_systematic_on,
-             "Check if the encoder systematic mode.\n\n"
-             "\t:returns: True if the encoder is in systematic mode.\n"
-            )
-        .def("in_systematic_phase",
-             &EncoderClass::wrapped_type::in_systematic_phase,
-             "Check if the encoder has systematic packets available.\n\n"
-             "\t:returns: True if the encoder is in systematic phase.\n"
-            )
-        .def("set_systematic_on",
-             &EncoderClass::wrapped_type::set_systematic_on,
-             "Set the encoder in systematic mode.\n"
-            )
-        .def("set_systematic_off",
-             &EncoderClass::wrapped_type::set_systematic_off,
-             "Turn off systematic mode.\n");
-    }
-};
-
 template<class Coder>
 struct extra_encoder_methods
 {
@@ -122,9 +85,6 @@ void encoder(const std::string& name)
              "Set a symbol to be encoded.\n\n"
              "\t:param index: The index of the symbol in the coding block.\n"
              "\t:param symbol: The actual data of that symbol.\n");
-
-    //(systematic_encoder_methods<
-    // kodo_core::has_set_systematic_off<encoder_type>::value>(encoder_class));
 
     (extra_encoder_methods<Coder>(encoder_class));
 }

@@ -72,14 +72,12 @@ void encoder(const std::string& name)
     auto encoder_class =
         coder<Coder>(name)
         .def("write_payload", &encoder_write_payload<encoder_type>,
-             "Encode a symbol.\n\n"
-             "\t:returns: The encoded symbol.\n"
-            )
+             "Generate a encoded symbol.\n\n"
+             "\t:returns: The encoded symbol.\n")
         .def("set_const_symbols", &set_const_symbols<encoder_type>,
              arg("symbols"),
              "Set the symbols to be encoded.\n\n"
-             "\t:param symbols: The symbols to be encoded.\n"
-            )
+             "\t:param symbols: The symbols to be encoded.\n")
         .def("set_const_symbol", &set_const_symbol<encoder_type>,
              args("index", "symbol"),
              "Set a symbol to be encoded.\n\n"

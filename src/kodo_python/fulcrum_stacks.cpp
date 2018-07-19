@@ -21,13 +21,11 @@ static void fulcrum_coder_methods(CoderClass& coder_class)
          &CoderClass::wrapped_type::expansion,
          "Get the expansion which denotes the number of additional "
          "symbols created by the outer code.\n\n"
-         "\t:returns: The expansion used.\n"
-        )
+         "\t:returns: The expansion used.\n")
     .def("inner_symbols",
          &CoderClass::wrapped_type::inner_symbols,
          "Get the number of symbols in the inner code.\n\n"
-         "\t:returns: The number of symbols in the inner code.\n"
-        );
+         "\t:returns: The number of symbols in the inner code.\n");
 }
 
 
@@ -35,19 +33,18 @@ template<class FactoryClass>
 static void fulcrum_factory_methods(FactoryClass& factory_class)
 {
     using boost::python::arg;
+
     factory_class
     .def("expansion",
          &FactoryClass::wrapped_type::expansion,
          "Get the expansion which denotes the number of additional "
          "symbols created by the outer code.\n\n"
-         "\t:returns: The expansion used.\n"
-        )
+         "\t:returns: The expansion used.\n")
     .def("set_expansion",
          &FactoryClass::wrapped_type::set_expansion,
          arg("expansion"),
          "Set the number of expansion symbols.\n\n"
-         "\t:param expansion: The number of expansion symbols to use.\n"
-        );
+         "\t:param expansion: The number of expansion symbols to use.\n");
 }
 
 template<>
@@ -56,6 +53,14 @@ struct extra_encoder_methods<kodo_fulcrum::encoder>
     template<class EncoderClass>
     extra_encoder_methods(EncoderClass& encoder_class)
     {
+        using boost::python::arg;
+
+        encoder_class
+        .def("set_seed",
+             &EncoderClass::wrapped_type::set_seed, arg("seed"),
+             "Set the seed of the coefficient generator.\n\n"
+             "\t:param seed: The seed value.\n");
+
         systematic_encoder_methods(encoder_class);
         fulcrum_coder_methods(encoder_class);
     }

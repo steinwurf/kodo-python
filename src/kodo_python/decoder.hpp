@@ -82,14 +82,13 @@ void decoder(const std::string& name)
 
     auto decoder_class =
         coder<Coder>(name)
-        .def("read_payload", &read_payload<decoder_type>, arg("symbol_data"),
+        .def("read_payload", &read_payload<decoder_type>,
+             arg("symbol_data"),
              "Decode the provided encoded symbol.\n\n"
-             "\t:param symbol_data: The encoded symbol.\n"
-            )
+             "\t:param symbol_data: The encoded symbol.\n")
         .def("is_complete", &decoder_type::is_complete,
              "Check whether decoding is complete.\n\n"
-             "\t:returns: True if the decoding is complete.\n"
-            )
+             "\t:returns: True if the decoding is complete.\n")
         .def("symbols_uncoded", &decoder_type::symbols_uncoded,
              "Returns the number of uncoded symbols currently known.\n\n"
              "Depending on the algorithm used the true number of uncoded\n"
@@ -99,17 +98,14 @@ void decoder(const std::string& name)
              "status of the decoding matrix.\n"
              "It is however guaranteed that at least this amount of uncoded\n"
              "symbols exist.\n\n"
-             "\t:returns: The number of symbols which have been uncoded.\n"
-            )
+             "\t:returns: The number of symbols which have been uncoded.\n")
         .def("symbols_missing", &decoder_type::symbols_missing,
              "Return the number of missing symbols at the decoder.\n\n"
-             "\t:returns: The number of missing symbols.\n"
-            )
+             "\t:returns: The number of missing symbols.\n")
         .def("symbols_partially_decoded",
              &decoder_type::symbols_partially_decoded,
              "Return the number of partially decoded symbols at the decoder.\n\n"
-             "\t:returns: The number of partially decoded symbols.\n"
-            )
+             "\t:returns: The number of partially decoded symbols.\n")
         .def("is_symbol_uncoded", &decoder_type::is_symbol_uncoded,
              arg("index"),
              "Check if the symbol at given index is uncoded.\n\n"
@@ -119,27 +115,29 @@ void decoder(const std::string& name)
              "that some algorithms do not, for performance reasons, keep track\n"
              "of the exact status of the decoding matrix.\n\n"
              "\t:param index: Index of the symbol to check.\n"
-             "\t:return: True if the symbol is uncoded, and otherwise false.\n"
-            )
+             "\t:return: True if the symbol is uncoded, and otherwise false.\n")
         .def("is_symbol_missing", &decoder_type::is_symbol_missing,
              arg("index"),
              "Check if the symbol at given index is missing.\n\n"
              "\t:param index: Index of the symbol to check.\n"
-             "\t:return: True if the symbol is missing otherwise false.\n"
-            )
+             "\t:return: True if the symbol is missing otherwise false.\n")
         .def("is_symbol_partially_decoded",
              &decoder_type::is_symbol_partially_decoded,
              arg("index"),
              "Check if the symbol at given index is partially decoded.\n\n"
              "\t:param index: Index of the symbol to check.\n"
              "\t:return: True if the symbol is partially decoded otherwise\n"
-             "\t         false.\n"
-            )
+             "\t         false.\n")
+        .def("is_symbol_pivot", &decoder_type::is_symbol_pivot,
+             arg("index"),
+             "The symbol pivot indicates whether a symbol is present in\n"
+             "the decoding matrix (it could be partially or fully decoded).\n\n"
+             "\t:param index: The index of the symbol.\n"
+             "\t:returns: True if the symbol is available.\n")
         .def("set_mutable_symbols", &set_mutable_symbols<decoder_type>,
              arg("symbols"),
              "Set the buffer where the decoded symbols should be stored.\n\n"
-             "\t:param symbols: The bytearray to store the symbols.\n"
-            )
+             "\t:param symbols: The bytearray to store the symbols.\n")
         .def("set_mutable_symbol", &set_mutable_symbol<decoder_type>,
              args("index", "symbol"),
              "Set the storage for a single symbol.\n\n"

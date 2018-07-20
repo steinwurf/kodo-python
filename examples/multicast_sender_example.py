@@ -23,13 +23,13 @@ def main():
     parser.add_argument(
         '--file-path',
         type=str,
-        help='Path to the file which should be send.',
+        help='Path to the file which should be sent.',
         default=os.path.realpath(__file__))
 
     parser.add_argument(
         '--ip',
         type=str,
-        help='The ip to send to.',
+        help='The IP address to send to.',
         default=MCAST_GRP)
 
     parser.add_argument(
@@ -50,17 +50,11 @@ def main():
         print("{} is not a valid file.".format(args.file_path))
         sys.exit(1)
 
-    # Set the number of symbols (i.e. the generation size in RLNC
-    # terminology) and the size of a symbol in bytes
+    field = kodo.field.binary
     symbols = 64
     symbol_size = 1400
 
-    # In the following we will make an encoder factory.
-    # The factories are used to build actual encoder
-    encoder_factory = kodo.FullVectorEncoderFactoryBinary(
-        max_symbols=symbols,
-        max_symbol_size=symbol_size)
-
+    encoder_factory = kodo.RLNCEncoderFactory(field, symbols, symbol_size)
     encoder = encoder_factory.build()
 
     sock = socket.socket(
@@ -70,14 +64,18 @@ def main():
 
     sock.setsockopt(socket.IPPROTO_IP, socket.IP_MULTICAST_TTL, 2)
 
-    # Get the data to encode.
+    # Read the input data from the file, only the first 64*1400 bytes can
+    # fit into a single generation. No more data will be sent.
+    # If the file is smaller than 64*1400 bytes, then it will be zero-padded.
     f = open(os.path.expanduser(args.file_path), 'rb')
-    data_in = f.read()
+    data_in = bytearray(f.read().ljust(encoder.block_size()))
     f.close()
 
-    # Assign the data buffer to the encoder so that we can
-    # produce encoded symbols
+    # Assign the data_in buffer to the encoder
     encoder.set_const_symbols(data_in)
+
+    if args.dry_run:
+        sys.exit(0)
 
     address = (args.ip, args.port)
 
@@ -86,10 +84,9 @@ def main():
         time.sleep(0.2)
         # Generate an encoded packet
         packet = encoder.write_payload()
-        print("Packet encoded!")
-
-        # Send the packet.
+        # Send the packet
         sock.sendto(packet, address)
+        print("Packet sent!")
 
     print("Processing finished")
 

@@ -5,26 +5,22 @@ import time
 import os
 import sys
 import argparse
-import pykodo as kodo
+import kodo
 
 
 def run_coding_test(algorithm, field, symbols, symbol_size):
     """Run a timed encoding and decoding benchmark."""
     # First, we measure the combined setup time for the encoder and decoder
     start = time.clock()
-    encoder_factory = kodo.encoder_factory(
-        algorithm=algorithm,
-        field=field,
-        max_symbols=symbols,
-        max_symbol_size=symbol_size)
 
-    decoder_factory = kodo.decoder_factory(
-        algorithm=algorithm,
-        field=field,
-        max_symbols=symbols,
-        max_symbol_size=symbol_size)
+    EncoderFactory = getattr(kodo, algorithm + 'EncoderFactory')
+    DecoderFactory = getattr(kodo, algorithm + 'DecoderFactory')
+    field = getattr(kodo.field, field)
 
+    encoder_factory = EncoderFactory(field, symbols, symbol_size)
     encoder = encoder_factory.build()
+
+    decoder_factory = DecoderFactory(field, symbols, symbol_size)
     decoder = decoder_factory.build()
 
     # Stop the setup timer
@@ -37,19 +33,20 @@ def run_coding_test(algorithm, field, symbols, symbol_size):
         encoder.set_systematic_off()
 
     # Create random data to encode
-    data_in = os.urandom(encoder.block_size())
+    data_in = bytearray(os.urandom(encoder.block_size()))
+    encoder.set_const_symbols(data_in)
+
+    data_out = bytearray(decoder.block_size())
+    decoder.set_mutable_symbols(data_out)
 
     # The generated payloads will be stored in this list
     payloads = []
 
-    # Generate an ample number of coded symbols (considering kodo_binary)
+    # Generate an ample number of coded symbols (considering binary)
     payload_count = 2 * symbols
 
     # Start the encoding timer
     start = time.clock()
-
-    # Copy the input data to the encoder
-    encoder.set_const_symbols(data_in)
 
     # Generate coded symbols with the encoder
     for i in range(payload_count):
@@ -73,9 +70,6 @@ def run_coding_test(algorithm, field, symbols, symbol_size):
         if decoder.is_complete():
             break
         decoder.read_payload(payloads[i])
-
-    # Copy the symbols from the decoder
-    data_out = decoder.copy_from_symbols()
 
     # Stop the decoding timer
     stop = time.clock()
@@ -101,24 +95,22 @@ def run_coding_test(algorithm, field, symbols, symbol_size):
 def main():
     parser = argparse.ArgumentParser(description=run_coding_test.__doc__)
 
-    # Disable the algorithms that do not work with the benchmark code
-    algorithms = list(kodo.algorithms)
-    algorithms.remove(kodo.no_code)
-    algorithms.remove(kodo.sparse_full_vector)
+    algorithms = ['NoCode', 'RLNC', 'Perpetual', 'Fulcrum']
+    fields = ['binary', 'binary4', 'binary8', 'binary16']
 
     parser.add_argument(
         '--algorithm',
         type=str,
         help='The algorithm to use',
         choices=algorithms,
-        default=kodo.full_vector)
+        default='RLNC')
 
     parser.add_argument(
         '--field',
         type=str,
         help='The finite field to use',
-        choices=kodo.fields,
-        default=kodo.binary8)
+        choices=fields,
+        default='binary8')
 
     parser.add_argument(
         '--symbols',

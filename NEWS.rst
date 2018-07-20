@@ -7,6 +7,18 @@ every change, see the Git log.
 Latest
 ------
 * tbd
+* Major: Changed all coders to work with shallow storage, so the user needs to
+  create a bytearray object where the encoder/decoder can store the symbols.
+  Make sure to call set_const_symbols() before using an encoder and
+  set_mutable_symbols() before using a decoder!
+  Consequently, the copy_from_symbols() function was removed, since the
+  decoded symbols are available without copying in the user-specified buffer.
+* Major: The finite field is specified as the first parameter of the factory
+  constructor (e.g. kodo.field.binary8).
+* Major: Upgrade to kodo-core 20
+* Major: Upgrade to kodo-rlnc 13
+* Major: Upgrade to kodo-fulcrum 12
+* Major: Depend on kodo-perpetual 2
 * Minor: Updated the license to STEINWURF EVALUATION LICENSE 1.0.
 
 12.0.0

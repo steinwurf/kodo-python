@@ -33,13 +33,13 @@ def main():
     parser.add_argument(
         '--ip',
         type=str,
-        help='The ip to send to.',
+        help='The IP address to use.',
         default=MCAST_GRP)
 
     parser.add_argument(
         '--port',
         type=int,
-        help='The port to send to.',
+        help='The port to use.',
         default=MCAST_PORT)
 
     parser.add_argument(
@@ -49,18 +49,15 @@ def main():
 
     args = parser.parse_args()
 
-    # Set the number of symbols (i.e. the generation size in RLNC
-    # terminology) and the size of a symbol in bytes
+    field = kodo.field.binary
     symbols = 64
     symbol_size = 1400
 
-    # In the following we will make an decoder factory.
-    # The factories are used to build actual decoder
-    decoder_factory = kodo.FullVectorDecoderFactoryBinary(
-        max_symbols=symbols,
-        max_symbol_size=symbol_size)
-
+    decoder_factory = kodo.RLNCDecoderFactory(field, symbols, symbol_size)
     decoder = decoder_factory.build()
+
+    data_out = bytearray(decoder.block_size())
+    decoder.set_mutable_symbols(data_out)
 
     sock = socket.socket(
         family=socket.AF_INET,
@@ -88,7 +85,7 @@ def main():
 
     # Write the decoded data to the output file
     f = open(args.output_file, 'wb')
-    f.write(decoder.copy_from_symbols())
+    f.write(data_out)
     f.close()
 
     print("Processing finished.")

@@ -79,16 +79,12 @@ def main():
     # of symbols needed for containing the image in a single generation.
     symbols = int(math.ceil(image_width * image_height * 3.0 / symbol_size))
 
-    # Create encoder factory and encoder
-    encoder_factory = kodo.FullVectorEncoderFactoryBinary8(
-        max_symbols=symbols,
-        max_symbol_size=symbol_size)
+    field = kodo.field.binary8
+
+    encoder_factory = kodo.RLNCEncoderFactory(field, symbols, symbol_size)
     encoder = encoder_factory.build()
 
-    # Create decoder factory and decoder
-    decoder_factory = kodo.FullVectorDecoderFactoryBinary8(
-        max_symbols=symbols,
-        max_symbol_size=symbol_size)
+    decoder_factory = kodo.RLNCDecoderFactory(field, symbols, symbol_size)
     decoder = decoder_factory.build()
 
     # Connect the tracing callback to the decode state viewer
@@ -102,12 +98,17 @@ def main():
 
     decoder.set_trace_callback(decoding_callback)
 
-    # Create a byte array from the image to use in the encoding (only pick the
+    # Create a bytearray from the image to use in the encoding (only pick the
     # data we have room for).
-    data_in = image.tobytes()[-encoder.block_size():]
+    data_in = bytearray(image.tobytes()[-encoder.block_size():])
 
     # Set the converted image data
     encoder.set_const_symbols(data_in)
+
+    # Define the data_out bytearray where the symbols should be decoded
+    # This bytearray must not go out of scope while the encoder exists!
+    data_out = bytearray(decoder.block_size())
+    decoder.set_mutable_symbols(data_out)
 
     # Create an image viwer and run the following code in a try catch;
     # this prevents the program from locking up, as the finally clause will
@@ -121,12 +122,10 @@ def main():
             if random.choice([True, False]):
                 decoder.read_payload(packet)
 
-            image_viewer.set_image(decoder.copy_from_symbols())
+            # The data_out buffer is continuously updated
+            image_viewer.set_image(data_out)
 
-        # The decoder is complete, now copy the symbols from the decoder
-        data_out = decoder.copy_from_symbols()
-
-        # Let the user see the photo before closing the application
+        # Let the user see the complete photo before closing the application
         for i in range(100):
             image_viewer.set_image(data_out)
     finally:

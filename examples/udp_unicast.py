@@ -24,7 +24,7 @@ def main():
     parser.add_argument(
         '--settings-port',
         type=int,
-        help='settings port on the server.',
+        help='Settings port on the server.',
         default=41001)
 
     parser.add_argument(
@@ -34,7 +34,8 @@ def main():
 
     subparsers = parser.add_subparsers(
         dest='role', help='help for subcommand')
-    subparsers.add_parser(
+
+    server_parser = subparsers.add_parser(
         'server',
         description="UDP server for sending and receiving files.",
         help='Start a server')
@@ -47,7 +48,7 @@ def main():
     client_parser.add_argument(
         '--server-ip',
         type=str,
-        help='ip of the server.',
+        help='IP address of the server.',
         default='127.0.0.1')
 
     client_parser.add_argument(
@@ -99,12 +100,12 @@ def main():
         '--timeout',
         type=float,
         help='timeout used for various sockets, in seconds.',
-        default=.2)
+        default=0.2)
 
-    # We have to use syg.argv for the dry-run parameter, otherwise a subcommand
-    # is required.
+    # We have to use syg.argv for the dry-run parameter, because parse_args()
+    # will fail with a "too few arguments" error if this is the only parameter
     if '--dry-run' in sys.argv:
-        return
+        sys.exit(0)
 
     args = parser.parse_args()
 
@@ -120,7 +121,7 @@ def server(args):
     settings_socket.bind(('', args.settings_port))
 
     # Wait for settings connections
-    print("Server running, press ctrl+c to stop.")
+    print("Server running, press Ctrl-C or Ctrl-Break to stop.")
     while True:
         data, address = receive(settings_socket, 1024)
         try:
@@ -163,12 +164,13 @@ def client(args):
 def send_data(settings, role):
     """Send data to the other node."""
     # Setup kodo encoder_factory and encoder
-    encoder_factory = kodo.FullVectorEncoderFactoryBinary(
-        max_symbols=settings['symbols'],
-        max_symbol_size=settings['symbol_size'])
+    encoder_factory = kodo.RLNCEncoderFactory(
+        field=kodo.field.binary,
+        symbols=settings['symbols'],
+        symbol_size=settings['symbol_size'])
 
     encoder = encoder_factory.build()
-    data_in = os.urandom(encoder.block_size())
+    data_in = bytearray(os.urandom(encoder.block_size()))
     encoder.set_const_symbols(data_in)
 
     send_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -212,18 +214,21 @@ def send_data(settings, role):
 
     size = encoder.block_size() * (float(sent) / settings['symbols'])
     seconds = end - start
-    print("Sent {0} packets, {1} kB, in {2}s, at {3:.2f} kb/s.".format(
+    print("Sent {0} packets, {1} kB in {2} s at {3:.2f} kbit/s.".format(
         sent, size / 1000, seconds, size * 8 / 1000 / seconds))
 
 
 def receive_data(settings, role):
     """Receive data from the other node."""
     # Setup kodo encoder_factory and decoder
-    decoder_factory = kodo.FullVectorDecoderFactoryBinary(
-        max_symbols=settings['symbols'],
-        max_symbol_size=settings['symbol_size'])
+    decoder_factory = kodo.RLNCDecoderFactory(
+        field = kodo.field.binary,
+        symbols=settings['symbols'],
+        symbol_size=settings['symbol_size'])
 
     decoder = decoder_factory.build()
+    data_out = bytearray(decoder.block_size())
+    decoder.set_mutable_symbols(data_out)
 
     send_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
@@ -270,7 +275,7 @@ def receive_data(settings, role):
 
     size = decoder.block_size() * (float(received) / settings['symbols'])
     seconds = end - start
-    print("Received {0} packets, {1}kB, in {2}s, at {3:.2f} kb/s.".format(
+    print("Received {0} packets, {1} kB in {2} s at {3:.2f} kbit/s.".format(
         received,
         size / 1000,
         seconds,
@@ -317,11 +322,10 @@ def send(socket, message, address):
     :param message: The message to send.
     :param address: The address to send to.
     """
-    if sys.version_info[0] == 2:
-        message = message
-    else:
-        if isinstance(message, str):
-            message = bytes(message, 'utf-8')
+    # Convert str message to bytes on Python 3+
+    if sys.version_info[0] > 2 and isinstance(message, str):
+        message = bytes(message, 'utf-8')
+
     socket.sendto(message, address)
 
 
@@ -335,11 +339,11 @@ def receive(socket, number_of_bytes):
     :param number_of_bytes: The number of bytes to receive.
     """
     data, address = socket.recvfrom(number_of_bytes)
-    if sys.version_info[0] == 2:
-        return data, address
-    else:
-        if isinstance(data, bytes):
-            return str(data, 'utf-8'), address
+    if sys.version_info[0] > 2 and isinstance(data, bytes):
+        return str(data, 'utf-8'), address
+
+    return data, address
+
 
 if __name__ == "__main__":
     main()

@@ -35,28 +35,21 @@ def main():
 
     canvas.start()
     try:
-        # Set the number of symbols (i.e. the generation size in RLNC
-        # terminology) and the size of a symbol in bytes
+        field = kodo.field.binary8
         symbols = 64
         symbol_size = 16
 
-        # In the following we will make an encoder/decoder factory.
-        # The factories are used to build actual encoders/decoders
-        encoder_factory = kodo.FullVectorEncoderFactoryBinary8(
-            max_symbols=symbols,
-            max_symbol_size=symbol_size)
+        encoder_factory = kodo.RLNCEncoderFactory(field, symbols, symbol_size)
         encoder = encoder_factory.build()
 
-        decoder_factory = kodo.FullVectorDecoderFactoryBinary8(
-            max_symbols=symbols,
-            max_symbol_size=symbol_size)
+        decoder_factory = kodo.RLNCDecoderFactory(field, symbols, symbol_size)
         decoder = decoder_factory.build()
 
-        # Create some data to encode. In this case we make a buffer
-        # with the same size as the encoder's block size (the max.
-        # amount a single encoder can encode)
-        # Just for fun - fill the input data with random data
-        data_in = os.urandom(encoder.block_size())
+        data_in = bytearray(os.urandom(encoder.block_size()))
+        encoder.set_const_symbols(data_in)
+
+        data_out = bytearray(decoder.block_size())
+        decoder.set_mutable_symbols(data_out)
 
         def decoder_callback(zone, msg):
             decoder_viewer.trace_callback(zone, msg)
@@ -67,9 +60,6 @@ def main():
         encoder_viewer.set_symbols(encoder.symbols())
         encoder.set_trace_callback(encoder_callback)
 
-        # Assign the data buffer to the encoder so that we may start
-        # to produce encoded symbols from it
-        encoder.set_const_symbols(data_in)
         while not decoder.is_complete():
             # Encode a packet into the payload buffer
             packet = encoder.write_payload()
@@ -92,8 +82,6 @@ def main():
         # What ever happens, make sure we stop the viewer.
         canvas.stop()
 
-    # The decoder is complete, now copy the symbols from the decoder
-    data_out = decoder.copy_from_symbols()
     # Check we properly decoded the data
     if data_out == data_in:
         print("Data decoded correctly")

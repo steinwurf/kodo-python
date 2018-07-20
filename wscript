@@ -139,9 +139,10 @@ def exec_test_python(bld):
                 bld.cmd_and_log('{0} {1}\n'.format(python, test), env=env)
 
     # Then run the examples in the 'examples' folder
-#    if os.path.exists('examples'):
-#        for f in sorted(os.listdir('examples')):
-#            if f.endswith('.py'):
-#                example = os.path.join('examples', f)
-#                bld.cmd_and_log(
-#                    '{0} {1} --dry-run\n'.format(python, example), env=env)
+    if os.path.exists('examples'):
+        for f in sorted(os.listdir('examples')):
+            if f.endswith('.py'):
+                example = os.path.join('examples', f)
+                bld.cmd_and_log(
+                    '{0} {1} --dry-run\n'.format(python, example), env=env)
+                print('-------------------------------\n')

@@ -191,7 +191,7 @@ def send_data(settings, role):
         send(send_socket, "settings OK, sending", server_address)
 
     sent = 0
-    start = time.time()
+    start = time.clock()
     end = None
     while sent < settings['symbols'] * settings['max_redundancy'] / 100:
         packet = encoder.write_payload()
@@ -201,21 +201,22 @@ def send_data(settings, role):
         try:
             control_socket.recv(1024)
             if end is None:
-                end = time.time()
+                end = time.clock()
             break
         except socket.timeout:
             continue
 
     # if no ack was received we sent all packets
     if end is None:
-        end = time.time()
+        end = time.clock()
 
     control_socket.close()
 
     size = encoder.block_size() * (float(sent) / settings['symbols'])
-    seconds = end - start
-    print("Sent {0} packets, {1} kB in {2} s at {3:.2f} kbit/s.".format(
-        sent, size / 1000, seconds, size * 8 / 1000 / seconds))
+    microseconds = 1e6 * (end - start)
+    print("Sent {0} packets, {1} kB in {2:.0f} microseconds at "
+          "{3:.2f} Mbit/s.".format(sent, size / 1000, microseconds,
+                                   size * 8 / microseconds))
 
 
 def receive_data(settings, role):
@@ -246,19 +247,19 @@ def receive_data(settings, role):
 
     # Decode coded packets
     received = 0
-    start = time.time()
+    start = time.clock()
     end = None
     while 1:
         try:
             packet = data_socket.recv(settings['symbol_size'] + 100)
 
             if not decoder.is_complete():
-                decoder.read_payload(packet)
+                decoder.read_payload(bytearray(packet))
                 received += 1
 
             if decoder.is_complete():
                 if end is None:
-                    end = time.time()  # stopping time once
+                    end = time.clock()  # stopping time once
                 send(send_socket, "Stop sending", address)
 
         except socket.timeout:
@@ -266,7 +267,7 @@ def receive_data(settings, role):
 
     # in case we did not complete
     if end is None:
-        end = time.time()
+        end = time.clock()
 
     data_socket.close()
 
@@ -274,13 +275,10 @@ def receive_data(settings, role):
         print("Decoding failed")
 
     size = decoder.block_size() * (float(received) / settings['symbols'])
-    seconds = end - start
-    print("Received {0} packets, {1} kB in {2} s at {3:.2f} kbit/s.".format(
-        received,
-        size / 1000,
-        seconds,
-        decoder.block_size() * 8 / 1000 / seconds
-    ))
+    microseconds = 1e6 * (end - start)
+    print("Received {0} packets, {1} kB in {2:.0f} microseconds at "
+          "{3:.2f} Mbit/s.".format(received, size / 1000, microseconds,
+                                   decoder.block_size() * 8 / microseconds))
 
 
 def send_settings(settings):

@@ -13,6 +13,9 @@ Latest
   set_mutable_symbols() before using a decoder!
   Consequently, the copy_from_symbols() function was removed, since the
   decoded symbols are available without copying in the user-specified buffer.
+* Major: The write_payload() function returns a Python bytearray and the
+  read_payload() function only accepts a bytearray as input. Therefore no
+  copying or conversion will happen between the Python and C++ sides.
 * Major: The finite field is specified as the first parameter of the factory
   constructor (e.g. kodo.field.binary8).
 * Major: Upgrade to kodo-core 20

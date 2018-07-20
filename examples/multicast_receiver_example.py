@@ -79,7 +79,7 @@ def main():
         time.sleep(0.2)
         packet = sock.recv(10240)
 
-        decoder.read_payload(packet)
+        decoder.read_payload(bytearray(packet))
         print("Packet received!")
         print("Decoder rank: {}/{}".format(decoder.rank(), decoder.symbols()))
 

@@ -49,19 +49,16 @@ PyObject* decoder_write_payload(Decoder& decoder)
     std::vector<uint8_t> payload(decoder.payload_size());
     auto length = decoder.write_payload(payload.data());
 
-#if PY_MAJOR_VERSION >= 3
-    return PyBytes_FromStringAndSize((char*)payload.data(), length);
-#else
-    return PyString_FromStringAndSize((char*)payload.data(), length);
-#endif
+    return PyByteArray_FromStringAndSize((char*)payload.data(), length);
 }
 
 template<class Decoder>
-void read_payload(Decoder& decoder, const std::string& data)
+void read_payload(Decoder& decoder, PyObject* obj)
 {
-    std::vector<uint8_t> payload(data.length());
-    std::copy(data.c_str(), data.c_str() + data.length(), payload.data());
-    decoder.read_payload(payload.data());
+    assert(PyByteArray_Check(obj) && "The payload buffer should be a "
+           "Python bytearray object");
+
+    decoder.read_payload((uint8_t*)PyByteArray_AsString(obj));
 }
 
 template<class Coder>

@@ -46,11 +46,8 @@ PyObject* encoder_write_payload(Encoder& encoder)
 {
     std::vector<uint8_t> payload(encoder.payload_size());
     uint32_t length = encoder.write_payload(payload.data());
-#if PY_MAJOR_VERSION >= 3
-    return PyBytes_FromStringAndSize((char*)payload.data(), length);
-#else
-    return PyString_FromStringAndSize((char*)payload.data(), length);
-#endif
+
+    return PyByteArray_FromStringAndSize((char*)payload.data(), length);
 }
 
 template<class Coder>

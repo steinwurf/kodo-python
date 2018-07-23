@@ -2,7 +2,7 @@
 # encoding: utf-8
 
 # Copyright Steinwurf ApS 2015.
-# Distributed under the "STEINWURF RESEARCH LICENSE 1.0".
+# Distributed under the "STEINWURF EVALUATION LICENSE 1.0".
 # See accompanying file LICENSE.rst or
 # http://www.steinwurf.com/licensing
 
@@ -19,7 +19,7 @@ def main():
     In Network Coding applications one of the key features is the
     ability of intermediate nodes in the network to recode packets
     as they traverse them. In Kodo it is possible to recode packets
-    in decoders which provide the recode() function.
+    in decoders which provide the write_payload() function.
 
     This example shows how to use one encoder and two decoders to
     simulate a simple relay network as shown below (for simplicity
@@ -38,35 +38,33 @@ def main():
     research literature (e.g. MORE: A Network Coding Approach to
     Opportunistic Routing).
     """
-    # Set the number of symbols (i.e. the generation size in RLNC
-    # terminology) and the size of a symbol in bytes
+    # Choose the finite field, the number of symbols (i.e. generation size)
+    # and the symbol size in bytes
+    field = kodo.field.binary
     symbols = 42
     symbol_size = 160
 
-    # In the following we will make an encoder/decoder factory.
-    # The factories are used to build actual encoders/decoders
-    encoder_factory = kodo.FullVectorEncoderFactoryBinary(
-        max_symbols=symbols,
-        max_symbol_size=symbol_size)
-
+    # Create an encoder/decoder factory that are used to build the
+    # actual encoders/decoders
+    encoder_factory = kodo.RLNCEncoderFactory(field, symbols, symbol_size)
     encoder = encoder_factory.build()
 
-    decoder_factory = kodo.FullVectorDecoderFactoryBinary(
-        max_symbols=symbols,
-        max_symbol_size=symbol_size)
-
+    decoder_factory = kodo.RLNCDecoderFactory(field, symbols, symbol_size)
     decoder1 = decoder_factory.build()
     decoder2 = decoder_factory.build()
 
-    # Create some data to encode. In this case we make a buffer
-    # with the same size as the encoder's block size (the max.
-    # amount a single encoder can encode)
-    # Just for fun - fill the input data with random data
-    data_in = os.urandom(encoder.block_size())
-
-    # Assign the data buffer to the encoder so that we may start
-    # to produce encoded symbols from it
+    # Generate some random data to encode. We create a bytearray of the same
+    # size as the encoder's block size and assign it to the encoder.
+    # This bytearray must not go out of scope while the encoder exists!
+    data_in = bytearray(os.urandom(encoder.block_size()))
     encoder.set_const_symbols(data_in)
+
+    # Define the data_out bytearrays where the symbols should be decoded
+    # These bytearrays must not go out of scope while the encoder exists!
+    data_out1 = bytearray(decoder1.block_size())
+    data_out2 = bytearray(decoder1.block_size())
+    decoder1.set_mutable_symbols(data_out1)
+    decoder2.set_mutable_symbols(data_out2)
 
     while not decoder2.is_complete():
 
@@ -84,12 +82,7 @@ def main():
         decoder2.read_payload(packet)
 
     # Both decoder1 and decoder2 should now be complete,
-    # copy the symbols from the decoders
-
-    data_out1 = decoder1.copy_from_symbols()
-    data_out2 = decoder2.copy_from_symbols()
-
-    # Check we properly decoded the data
+    # check if the output buffers match the data_in buffer
     if data_out1 == data_in and data_out2 == data_in:
         print("Data decoded correctly")
     else:

@@ -2,7 +2,7 @@
 # encoding: utf-8
 
 # Copyright Steinwurf ApS 2015.
-# Distributed under the "STEINWURF RESEARCH LICENSE 1.0".
+# Distributed under the "STEINWURF EVALUATION LICENSE 1.0".
 # See accompanying file LICENSE.rst or
 # http://www.steinwurf.com/licensing
 
@@ -22,7 +22,6 @@ import numpy
 
 
 class CanvasScreenEngine(object):
-
     """Canvas engine for displaying images to the screen."""
 
     def __init__(self, width, height):
@@ -69,7 +68,6 @@ class CanvasScreenEngine(object):
 
 
 class CanvasFileEngine(object):
-
     """
     Canvas engine for writing images to files.
 
@@ -138,7 +136,6 @@ class CanvasFileEngine(object):
 
 
 class StateViewer(object):
-
     """Class for displaying the coding coefficients."""
 
     def __init__(self, size, canvas, canvas_position):
@@ -174,7 +171,6 @@ class StateViewer(object):
 
 
 class DecodeStateViewer(StateViewer):
-
     """Class for displaying the decoding coefficients."""
 
     def __init__(self, size, canvas, canvas_position=(0, 0)):
@@ -201,7 +197,6 @@ class DecodeStateViewer(StateViewer):
 
 
 class EncodeStateViewer(StateViewer):
-
     """Class for displaying the encoding coefficients."""
 
     def __init__(self, size, canvas, canvas_position=(0, 0),
@@ -211,23 +206,27 @@ class EncodeStateViewer(StateViewer):
             size, canvas, canvas_position)
         # if true, wrap_around, else push up.
         self.wrap_around = wrap_around
+        self.__symbols = None
+
+    def set_symbols(self, symbols):
+        """
+        Set the number of symbols.
+
+        The number of symbols must be set before using the trace_callback.
+
+        :param symbols: the number of symbols.
+        """
+        self.__symbols = symbols
+        self.state = [[] for i in range(self.__symbols)]
+        self.index = 0
 
     def trace_callback(self, zone, message):
         """Callback to be used with the encoder trace API."""
-        if zone == "set_const_symbols":
-            for line in reversed(message.split('\n')):
-                elements = line.split()
-                if len(elements) > 1 and elements[1] == 'I:':
-                    self.symbols = int(elements[0]) + 1
-                    break
-
-            self.state = [[] for i in range(self.symbols)]
-            self.index = 0
-            return
+        assert self.__symbols is not None, "Symbols not set, use set_symbols"
 
         if zone == "symbol_index_after_write_uncoded_symbol":
             index = int(message.split(' ')[-1])
-            symbol = [0 for i in range(self.symbols)]
+            symbol = [0 for i in range(self.__symbols)]
             symbol[index] = 1
 
         elif zone == "symbol_coefficients_after_write_symbol":
@@ -236,21 +235,20 @@ class EncodeStateViewer(StateViewer):
         else:
             return
 
-        if self.index < self.symbols:
+        if self.index < self.__symbols:
             self.state[self.index] = symbol
         else:
             self.state = self.state[1:] + [symbol]
         self.index += 1
 
         if self.wrap_around:
-            self.index = self.index % self.symbols
-            self.state[self.index-1] = symbol
+            self.index = self.index % self.__symbols
+            self.state[self.index - 1] = symbol
 
         self.show_decode_state(self.state)
 
 
 class ImageViewer(object):
-
     """A class containing the logic for displaying an image during decoding."""
 
     def __init__(self, width, height, canvas, canvas_position=(0, 0)):

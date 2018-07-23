@@ -8,6 +8,47 @@ Latest
 ------
 * Minor: Added pure recoder.
 
+13.0.0
+------
+* Major: Changed all coders to work with shallow storage, so the user needs to
+  create a bytearray object where the encoder/decoder can store the symbols.
+  Make sure to call set_const_symbols() before using an encoder and
+  set_mutable_symbols() before using a decoder!
+  Consequently, the copy_from_symbols() function was removed, since the
+  decoded symbols are available without copying in the user-specified buffer.
+* Major: The write_payload() function returns a Python bytearray and the
+  read_payload() function only accepts a bytearray as input. Therefore no
+  copying or conversion will happen between the Python and C++ sides.
+* Major: The finite field is specified as the first parameter of the factory
+  constructor (e.g. kodo.field.binary8).
+* Major: Upgrade to kodo-core 20
+* Major: Upgrade to kodo-rlnc 13
+* Major: Upgrade to kodo-fulcrum 12
+* Major: Depend on kodo-perpetual 2
+* Minor: Updated the license to STEINWURF EVALUATION LICENSE 1.0.
+
+12.0.0
+------
+* Major: Upgrade to kodo-core 9
+* Major: Upgrade to kodo-rlnc 7
+* Major: Upgrade to kodo-fulcrum 7
+
+11.0.1
+------
+* Patch: The unit tests should only run if this is the top-level project.
+
+11.0.0
+------
+* Major: Upgrade to waf-tools 4
+* Major: Upgrade to boost 3
+* Major: Upgrade to kodo-core 8
+* Major: Upgrade to kodo-rlnc 6
+* Major: Upgrade to kodo-fulcrum 6
+* Minor: Added decoder functions: ``copy_from_symbol``, ``is_symbol_missing``,
+  ``is_symbol_partially_decoded``, ``is_symbol_uncoded``, ``symbols_missing``,
+  ``symbols_partially_decoded``.
+* Patch: Updated documentation.
+
 10.0.0
 ------
 * Major: Depend on kodo-core, kodo-rlnc and kodo-fulcrum instead of kodo

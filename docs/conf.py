@@ -12,19 +12,25 @@
 # All configuration values have a default; values that are commented out
 # serve to show the default.
 
-import sys
+import glob
 import os
+import readline
+import sys
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 
-default = '.'
-print ("Where is the kodo.so file located? [{}]".format(default))
+default = '../build/linux/src/kodo_python/'
 
-kodo_dir = raw_input()
+readline.set_completer_delims(' \t\n;')
+readline.parse_and_bind("tab: complete")
+readline.set_completer(lambda text, state: (glob.glob(text+'*')+[None])[state])
+kodo_dir = raw_input("Where is the kodo.so file located[{}]: ".format(default))
+print bool(kodo_dir)
+print kodo_dir
 if not kodo_dir:
-    kodo = default
+    kodo_dir = default
 
 sys.path.insert(0, os.path.abspath(kodo_dir))
 
@@ -50,15 +56,15 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'kodo'
-copyright = u'2014, Steinwurf ApS'
+project = u'kodo-python'
+copyright = u'2016, Steinwurf ApS'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
 # built documents.
 #
 # The short X.Y version.
-version = '2.1.0'
+version = '10.0.0'
 # The full version, including alpha/beta/rc tags.
 release = version
 
@@ -104,13 +110,22 @@ pygments_style = 'sphinx'
 # a list of builtin themes.
 html_theme = 'default'
 
+# Add any paths that contain custom themes here, relative to this directory.
+#html_theme_path = []
+
+try:
+    import sphinx_rtd_theme
+
+    html_theme = "sphinx_rtd_theme"
+
+    html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
+except:
+    print "Warning: Unable to import sphinx_rtd_theme, using default."
+
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
 # documentation.
 #html_theme_options = {}
-
-# Add any paths that contain custom themes here, relative to this directory.
-#html_theme_path = []
 
 # The name for this set of Sphinx documents.  If None, it defaults to
 # "<project> v<release> documentation".

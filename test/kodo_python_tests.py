@@ -2,7 +2,7 @@
 # encoding: utf-8
 
 # Copyright Steinwurf ApS 2015.
-# Distributed under the "STEINWURF RESEARCH LICENSE 1.0".
+# Distributed under the "STEINWURF EVALUATION LICENSE 1.0".
 # See accompanying file LICENSE.rst or
 # http://www.steinwurf.com/licensing
 
@@ -11,69 +11,36 @@ import unittest
 
 import kodo
 
-test_sets = [
-    # FullVector
-    (kodo.FullVectorEncoderFactoryBinary,
-     kodo.FullVectorDecoderFactoryBinary),
-    (kodo.FullVectorEncoderFactoryBinary4,
-     kodo.FullVectorDecoderFactoryBinary4),
-    (kodo.FullVectorEncoderFactoryBinary8,
-     kodo.FullVectorDecoderFactoryBinary8),
-    (kodo.FullVectorEncoderFactoryBinary16,
-     kodo.FullVectorDecoderFactoryBinary16),
+# The test sets are only enabled for the codecs that were actually compiled
+# (some repositories might be unavailable for certain users)
+test_sets = []
 
-    # SparseFullVector
-    (kodo.SparseFullVectorEncoderFactoryBinary,
-     kodo.FullVectorDecoderFactoryBinary),
-    (kodo.SparseFullVectorEncoderFactoryBinary4,
-     kodo.FullVectorDecoderFactoryBinary4),
-    (kodo.SparseFullVectorEncoderFactoryBinary8,
-     kodo.FullVectorDecoderFactoryBinary8),
-    (kodo.SparseFullVectorEncoderFactoryBinary16,
-     kodo.FullVectorDecoderFactoryBinary16),
+# Carousel
+if hasattr(kodo, 'NoCodeEncoderFactory'):
+    test_sets.append(([kodo.field.binary],
+                      kodo.NoCodeEncoderFactory,
+                      kodo.NoCodeDecoderFactory))
 
-    # OnTheFly
-    (kodo.OnTheFlyEncoderFactoryBinary,
-     kodo.OnTheFlyDecoderFactoryBinary),
-    (kodo.OnTheFlyEncoderFactoryBinary4,
-     kodo.OnTheFlyDecoderFactoryBinary4),
-    (kodo.OnTheFlyEncoderFactoryBinary8,
-     kodo.OnTheFlyDecoderFactoryBinary8),
-    (kodo.OnTheFlyEncoderFactoryBinary16,
-     kodo.OnTheFlyDecoderFactoryBinary16),
+# RLNC
+if hasattr(kodo, 'RLNCEncoderFactory'):
+    test_sets.append(([kodo.field.binary, kodo.field.binary4,
+                      kodo.field.binary8, kodo.field.binary16],
+                      kodo.RLNCEncoderFactory,
+                      kodo.RLNCDecoderFactory))
 
-    # SlidingWindow
-    (kodo.SlidingWindowEncoderFactoryBinary,
-     kodo.SlidingWindowDecoderFactoryBinary),
-    (kodo.SlidingWindowEncoderFactoryBinary4,
-     kodo.SlidingWindowDecoderFactoryBinary4),
-    (kodo.SlidingWindowEncoderFactoryBinary8,
-     kodo.SlidingWindowDecoderFactoryBinary8),
-    (kodo.SlidingWindowEncoderFactoryBinary16,
-     kodo.SlidingWindowDecoderFactoryBinary16),
+# Perpetual
+if hasattr(kodo, 'PerpetualEncoderFactory'):
+    test_sets.append(([kodo.field.binary, kodo.field.binary4,
+                      kodo.field.binary8, kodo.field.binary16],
+                      kodo.PerpetualEncoderFactory,
+                      kodo.PerpetualDecoderFactory))
 
-    # Perpetual
-    (kodo.PerpetualEncoderFactoryBinary,
-     kodo.PerpetualDecoderFactoryBinary),
-    (kodo.PerpetualEncoderFactoryBinary4,
-     kodo.PerpetualDecoderFactoryBinary4),
-    (kodo.PerpetualEncoderFactoryBinary8,
-     kodo.PerpetualDecoderFactoryBinary8),
-    (kodo.PerpetualEncoderFactoryBinary16,
-     kodo.PerpetualDecoderFactoryBinary16),
-
-    # Carousel
-    (kodo.NoCodeEncoderFactory,
-     kodo.NoCodeDecoderFactory),
-
-    # Fulcrum
-    (kodo.FulcrumEncoderFactoryBinary4,
-     kodo.FulcrumDecoderFactoryBinary4),
-    (kodo.FulcrumEncoderFactoryBinary8,
-     kodo.FulcrumDecoderFactoryBinary8),
-    (kodo.FulcrumEncoderFactoryBinary16,
-     kodo.FulcrumDecoderFactoryBinary16),
-]
+# Fulcrum
+if hasattr(kodo, 'FulcrumEncoderFactory'):
+    test_sets.append(([kodo.field.binary4, kodo.field.binary8,
+                      kodo.field.binary16],
+                      kodo.FulcrumEncoderFactory,
+                      kodo.FulcrumDecoderFactory))
 
 
 class TestVersion(unittest.TestCase):
@@ -91,41 +58,35 @@ class TestEncodeDecode(unittest.TestCase):
 
     def test_all(self):
         for test_set in test_sets:
-            self.encode_decode_simple(*test_set)
+            for field in test_set[0]:
+                self.encode_decode_simple(field, test_set[1], test_set[2])
 
-    def encode_decode_simple(self, EncoderFactory, DecoderFactory):
-        # Set the number of symbols (i.e. the generation size in RLNC
-        # terminology) and the size of a symbol in bytes
+    def encode_decode_simple(self, field, EncoderFactory, DecoderFactory):
+
         symbols = 8
         symbol_size = 160
 
-        # In the following we will make an encoder/decoder factory.
-        # The factories are used to build actual encoders/decoders
-        encoder_factory = EncoderFactory(symbols, symbol_size)
+        encoder_factory = EncoderFactory(field, symbols, symbol_size)
         encoder = encoder_factory.build()
 
-        decoder_factory = DecoderFactory(symbols, symbol_size)
+        decoder_factory = DecoderFactory(field, symbols, symbol_size)
         decoder = decoder_factory.build()
 
-        # Create some data to encode. In this case we make a buffer
-        # with the same size as the encoder's block size (the max.
-        # amount a single encoder can encode)
-        # Just for fun - fill the input data with random data
         data_in = bytearray(os.urandom(encoder.block_size()))
-        data_in = bytes(data_in)
-
-        # Assign the data buffer to the encoder so that we can
-        # produce encoded symbols
         encoder.set_const_symbols(data_in)
+
+        data_out = bytearray(decoder.block_size())
+        decoder.set_mutable_symbols(data_out)
+
+        # Turn off systematic mode to test with coded symbols from the start
+        if 'set_systematic_off' in dir(encoder):
+            encoder.set_systematic_off()
 
         while not decoder.is_complete():
             # Generate an encoded packet
             packet = encoder.write_payload()
             # Decode the encoded packet
             decoder.read_payload(packet)
-
-        # The decoder is complete, now copy the symbols from the decoder
-        data_out = decoder.copy_from_symbols()
 
         # Check if we properly decoded the data
         self.assertEqual(data_out, data_in)

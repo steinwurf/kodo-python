@@ -1,8 +1,8 @@
-STEINWURF RESEARCH LICENSE
-==========================
+STEINWURF EVALUATION LICENSE
+============================
 
 Version 1.0
-Copyright (c) Steinwurf ApS and its licensors. 2011-2012. All rights reserved.
+Copyright (c) Steinwurf ApS and its licensors. 2018. All rights reserved.
 
 I. DEFINITIONS
 --------------
@@ -11,43 +11,49 @@ I. DEFINITIONS
 
 "Software" is the object code and source code of the product provided by Steinwurf ApS and its licensors.
 
-"Research and Educational Use" means use for non-profit, non-commercial research and educational purposes only. Commercial use, including use for internal business purposes, is not permitted under this license. Contact Steinwurf ApS if you wish to obtain a commercial license.
+"Developed Software" Libraries and programs created by You using the Software under this license.
 
-II. RESEARCH AND EDUCATIONAL USE RIGHTS
----------------------------------------
+"Research Use" means research, evaluation, or development for the purpose of advancing knowledge, teaching, learning. Research Use expressly excludes use or distribution for direct or indirect commercial gain or advantage.
 
-You may use, copy, reproduce, and distribute the Software for Research and Educational Use only, subject to the restrictions in this license; provided, however, that any party to whom you distribute the Software may use it only for Research and Educational Use and only pursuant to a license from Steinwurf ApS and its licensors. Pursuant to such license, you may include parts or all of the software, including your modifications, in scientific publications such as books, papers, and teaching material for non-profit, non-commercial, academic purposes.
+"Commercial Evaluation Use" means using the software for evaluation and demonstration purposes only, this includes experiments, pilots, field trials, trainings, and prototyping. But it does not include commercial deployments or any usage for internal business purposes other than evaluation and demonstration. Contact Steinwurf ApS if you wish to obtain a commercial license.
 
-You may modify the Software, but you may use any modified software only under the terms and conditions that apply to the Software, including the restriction to use the Software for Research and Educational Use only.
+II. USAGE RIGHTS
+----------------
 
-Other than the rights granted herein, Steinwurf ApS and its licensors retain all ownership rights to the Software, and you retain all rights to modifications made exclusively by you to the Software; provided, however, that you agree to grant a worldwide license under any rights you may have to such modifications to Steinwurf ApS, its licensors, and their respective licensees on fair, reasonable and non-discriminatory terms.
+1. You are hereby granted a personal, non-exclusive, non-transferable, non-sublicensable limited license to develop, make, and use the Software subject to and conditioned upon your compliance with terms and conditions of this license agreement for either Research Use or Commercial Evaluation Use.
+2. You may modify the Software which has been made available to You by Steinwurf.
+3. You agree to assign, and hereby do assign, all rights in and to any such extensions, modifications, improvements of the Software to Steinwurf ApS.
+4. You may not resell, distribute, rent, assign, sell, loan, lease, sublicense or use the Software or any component thereof to provide services or hosted services to third parties, nor deploy the Software or any derivative work thereof externally for the benefit of another party.
+5. Under Research Use, You may distribute any Developed Software to a third party as source code for Research Use only. You may include parts of the Software, and your modifications to the Software, in scientific publications such as books, papers, and teaching material for non-profit, non-commercial, academic purposes.
+6. Under Commercial Evaluation Use, You may distribute any Developed Software to a third party as object code only and only for the purposes of Commercial Evaluation Use.
 
 III. LICENSE RESTRICTIONS
 -------------------------
 
-You agree with all terms and conditions in this license, and you agree that you shall comply with all restrictions and responsibilities herein. This agreement does not include the right to grant sublicenses.
-
-You may not resell, distribute, rent, assign, sell, loan, lease, sublicense or use the Software or any component thereof to provide services or hosted services to third parties, nor deploy the Software or any derivative work thereof internally for non-research or non-educational purposes or externally for the benefit of another party.
+1. You agree with all terms and conditions in this license, and You agree that You shall comply with all restrictions and responsibilities herein.
+2. All worldwide right, title and interest in and to the Software and any patents, copyrights, or other proprietary rights relating thereto, shall be and remain the exclusive property of Steinwurf ApS.
+3. Steinwurf ApS shall not acquire any right, title or interest in the Developed Software apart from its rights in the Software.
+4. You acknowledge that your license of the Software is not dependent upon the performance by any party of any maintenance and support, professional services or the supply of any other software product.
 
 IV. GENERAL TERMS
 -----------------
 
 1. Disclaimer of Warranty
 
- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, TITLE OR NONINFRINGEMENT. IN NO EVENT SHALL STEINWURF APS OR ITS LICENSORS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, TITLE OR NONINFRINGEMENT. IN NO EVENT SHALL STEINWURF APS OR ITS LICENSORS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 2. Limitation of Liability
 
- IN NO EVENT UNLESS REQUIRED BY APPLICABLE LAW WILL STEINWURF APS OR ITS LICENSORS BE LIABLE TO YOU FOR ANY LOST PROFITS, LOST SAVINGS OR INCIDENTAL, INDIRECT, SPECIAL OR CONSEQUENTIAL DAMAGES, ARISING OUT OF YOUR USE OR INABILITY TO USE THE PRODUCT OR THE BREACH OF THIS AGREEMENT, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGES. ALSO, YOU MUST PASS THIS LIMITATION OF LIABILITY ON WHENEVER YOU DISTRIBUTE THE SOFTWARE OR DERIVATIVE WORKS.
+IN NO EVENT UNLESS REQUIRED BY APPLICABLE LAW WILL STEINWURF APS OR ITS LICENSORS BE LIABLE TO YOU FOR ANY LOST PROFITS, LOST SAVINGS OR INCIDENTAL, INDIRECT, SPECIAL OR CONSEQUENTIAL DAMAGES, ARISING OUT OF YOUR USE OR INABILITY TO USE THE PRODUCT OR THE BREACH OF THIS AGREEMENT, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGES. ALSO, YOU MUST PASS THIS LIMITATION OF LIABILITY ON WHENEVER YOU DISTRIBUTE THE SOFTWARE OR DERIVATIVE WORKS.
 
 3. Termination
 
- You may terminate this license at any time.
+You may terminate this license at any time.
 
- Steinwurf ApS may terminate this license at any time, including, without limitation, if you bring or assist any third party in bringing any challenge to the validity, patentability, enforceability and/or non-infringement of, or otherwise oppose, any patent rights controlled by Steinwurf ApS or licensed to Steinwurf ApS.
+Steinwurf ApS may terminate this license at any time, including, without limitation, if You bring or assist any third party in bringing any challenge to the validity, patentability, enforceability and/or non-infringement of, or otherwise oppose, any patent rights controlled by Steinwurf ApS or licensed to Steinwurf ApS.
 
- Upon termination, you must discontinue using and distributing the Software under this agreement, and delete all versions of the Software in your possession, both original and derived versions.
+Upon termination, You must discontinue using and distributing the Software under this agreement, and delete all versions of the Software in your possession, both original and derived versions.
 
 4. License and Copyright Notices
 
- The above copyright notice and License notice must be included in all copies or substantial portions of the Software.
+The above copyright notice and License notice must be included in all copies or substantial portions of the Software.

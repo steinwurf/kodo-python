@@ -1,0 +1,59 @@
+[
+    {
+        "name": "waf-tools",
+        "resolver": "git",
+        "method": "semver",
+        "major": 4,
+        "sources": [
+            "github.com/steinwurf/waf-tools.git"
+        ]
+    },
+    {
+        "name": "boost",
+        "resolver": "git",
+        "method": "semver",
+        "major": 3,
+        "sources": [
+            "github.com/steinwurf/boost.git"
+        ]
+    },
+    {
+        "name": "kodo-core",
+        "resolver": "git",
+        "method": "semver",
+        "major": 20,
+        "sources": [
+            "github.com/steinwurf/kodo-core.git"
+        ]
+    },
+    {
+        "name": "kodo-rlnc",
+        "optional": true,
+        "resolver": "git",
+        "method": "semver",
+        "major": 13,
+        "sources": [
+            "github.com/steinwurf/kodo-rlnc.git"
+        ]
+    },
+    {
+        "name": "kodo-perpetual",
+        "optional": true,
+        "resolver": "git",
+        "method": "semver",
+        "major": 2,
+        "sources": [
+            "github.com/steinwurf/kodo-perpetual.git"
+        ]
+    },
+    {
+        "name": "kodo-fulcrum",
+        "optional": true,
+        "resolver": "git",
+        "method": "semver",
+        "major": 12,
+        "sources": [
+            "github.com/steinwurf/kodo-fulcrum.git"
+        ]
+    }
+]

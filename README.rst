@@ -37,7 +37,7 @@ Requirements
 ------------
 
 First of all, follow `this Getting Started guide
-<http://kodo-docs.steinwurf.com/en/latest/getting_started.html>`_ to install
+<http://docs.steinwurf.com/getting_started.html>`_ to install
 the basic tools required for the compilation (C++11 compiler, Git, Python).
 
 The compilers used by Steinwurf are listed at the bottom of the

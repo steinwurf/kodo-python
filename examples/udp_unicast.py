@@ -2,7 +2,7 @@
 # encoding: utf-8
 
 # Copyright Steinwurf ApS 2014.
-# Distributed under the "STEINWURF RESEARCH LICENSE 1.0".
+# Distributed under the "STEINWURF EVALUATION LICENSE 1.0".
 # See accompanying file LICENSE.rst or
 # http://www.steinwurf.com/licensing
 
@@ -18,16 +18,13 @@ import kodo
 
 
 def main():
-    """
-    UDP Server/Client for sending and receiving files.
-    """
-
+    """UDP Server/Client for sending and receiving files."""
     parser = argparse.ArgumentParser(description=main.__doc__)
 
     parser.add_argument(
         '--settings-port',
         type=int,
-        help='settings port on the server.',
+        help='Settings port on the server.',
         default=41001)
 
     parser.add_argument(
@@ -37,7 +34,8 @@ def main():
 
     subparsers = parser.add_subparsers(
         dest='role', help='help for subcommand')
-    subparsers.add_parser(
+
+    server_parser = subparsers.add_parser(
         'server',
         description="UDP server for sending and receiving files.",
         help='Start a server')
@@ -50,7 +48,7 @@ def main():
     client_parser.add_argument(
         '--server-ip',
         type=str,
-        help='ip of the server.',
+        help='IP address of the server.',
         default='127.0.0.1')
 
     client_parser.add_argument(
@@ -102,12 +100,12 @@ def main():
         '--timeout',
         type=float,
         help='timeout used for various sockets, in seconds.',
-        default=.2)
+        default=0.2)
 
-    # We have to use syg.argv for the dry-run parameter, otherwise a subcommand
-    # is required.
+    # We have to use syg.argv for the dry-run parameter, because parse_args()
+    # will fail with a "too few arguments" error if this is the only parameter
     if '--dry-run' in sys.argv:
-        return
+        sys.exit(0)
 
     args = parser.parse_args()
 
@@ -118,11 +116,12 @@ def main():
 
 
 def server(args):
+    """Init server."""
     settings_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     settings_socket.bind(('', args.settings_port))
 
     # Wait for settings connections
-    print("Server running, press ctrl+c to stop.")
+    print("Server running, press Ctrl-C or Ctrl-Break to stop.")
     while True:
         data, address = receive(settings_socket, 1024)
         try:
@@ -144,7 +143,7 @@ def server(args):
 
 
 def client(args):
-
+    """Init client."""
     if args.symbol_size > 65000:
         print("Resulting packets too big, reduce symbol size")
         return
@@ -163,17 +162,15 @@ def client(args):
 
 
 def send_data(settings, role):
-    """
-    Send data to the other node
-    """
-
+    """Send data to the other node."""
     # Setup kodo encoder_factory and encoder
-    encoder_factory = kodo.FullVectorEncoderFactoryBinary(
-        max_symbols=settings['symbols'],
-        max_symbol_size=settings['symbol_size'])
+    encoder_factory = kodo.RLNCEncoderFactory(
+        field=kodo.field.binary,
+        symbols=settings['symbols'],
+        symbol_size=settings['symbol_size'])
 
     encoder = encoder_factory.build()
-    data_in = os.urandom(encoder.block_size())
+    data_in = bytearray(os.urandom(encoder.block_size()))
     encoder.set_const_symbols(data_in)
 
     send_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -194,7 +191,7 @@ def send_data(settings, role):
         send(send_socket, "settings OK, sending", server_address)
 
     sent = 0
-    start = time.time()
+    start = time.clock()
     end = None
     while sent < settings['symbols'] * settings['max_redundancy'] / 100:
         packet = encoder.write_payload()
@@ -204,32 +201,35 @@ def send_data(settings, role):
         try:
             control_socket.recv(1024)
             if end is None:
-                end = time.time()
+                end = time.clock()
             break
         except socket.timeout:
             continue
 
     # if no ack was received we sent all packets
     if end is None:
-        end = time.time()
+        end = time.clock()
 
     control_socket.close()
 
     size = encoder.block_size() * (float(sent) / settings['symbols'])
-    seconds = end - start
-    print("Sent {0} packets, {1} kB, in {2}s, at {3:.2f} kb/s.".format(
-        sent, size / 1000, seconds, size * 8 / 1000 / seconds))
+    microseconds = 1e6 * (end - start)
+    print("Sent {0} packets, {1} kB in {2:.0f} microseconds at "
+          "{3:.2f} Mbit/s.".format(sent, size / 1000, microseconds,
+                                   size * 8 / microseconds))
 
 
 def receive_data(settings, role):
-    """Receive data from the other node"""
-
+    """Receive data from the other node."""
     # Setup kodo encoder_factory and decoder
-    decoder_factory = kodo.FullVectorDecoderFactoryBinary(
-        max_symbols=settings['symbols'],
-        max_symbol_size=settings['symbol_size'])
+    decoder_factory = kodo.RLNCDecoderFactory(
+        field = kodo.field.binary,
+        symbols=settings['symbols'],
+        symbol_size=settings['symbol_size'])
 
     decoder = decoder_factory.build()
+    data_out = bytearray(decoder.block_size())
+    decoder.set_mutable_symbols(data_out)
 
     send_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
@@ -247,19 +247,19 @@ def receive_data(settings, role):
 
     # Decode coded packets
     received = 0
-    start = time.time()
+    start = time.clock()
     end = None
     while 1:
         try:
             packet = data_socket.recv(settings['symbol_size'] + 100)
 
             if not decoder.is_complete():
-                decoder.read_payload(packet)
+                decoder.read_payload(bytearray(packet))
                 received += 1
 
             if decoder.is_complete():
                 if end is None:
-                    end = time.time()  # stopping time once
+                    end = time.clock()  # stopping time once
                 send(send_socket, "Stop sending", address)
 
         except socket.timeout:
@@ -267,7 +267,7 @@ def receive_data(settings, role):
 
     # in case we did not complete
     if end is None:
-        end = time.time()
+        end = time.clock()
 
     data_socket.close()
 
@@ -275,21 +275,19 @@ def receive_data(settings, role):
         print("Decoding failed")
 
     size = decoder.block_size() * (float(received) / settings['symbols'])
-    seconds = end-start
-    print("Received {0} packets, {1}kB, in {2}s, at {3:.2f} kb/s.".format(
-        received,
-        size / 1000,
-        seconds,
-        decoder.block_size() * 8 / 1000 / seconds
-    ))
+    microseconds = 1e6 * (end - start)
+    print("Received {0} packets, {1} kB in {2:.0f} microseconds at "
+          "{3:.2f} Mbit/s.".format(received, size / 1000, microseconds,
+                                   decoder.block_size() * 8 / microseconds))
 
 
 def send_settings(settings):
     """
-    Send settings to server, block until confirmation received that settings
-    was correctly received
-    """
+    Send settings to server.
 
+    This function blocks until confirmation received that settings
+    was correctly received.
+    """
     control_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     control_socket.settimeout(settings['timeout'])
     control_socket.bind(('', settings['client_control_port']))
@@ -322,11 +320,10 @@ def send(socket, message, address):
     :param message: The message to send.
     :param address: The address to send to.
     """
-    if sys.version_info[0] == 2:
-        message = message
-    else:
-        if isinstance(message, str):
-            message = bytes(message, 'utf-8')
+    # Convert str message to bytes on Python 3+
+    if sys.version_info[0] > 2 and isinstance(message, str):
+        message = bytes(message, 'utf-8')
+
     socket.sendto(message, address)
 
 
@@ -340,11 +337,11 @@ def receive(socket, number_of_bytes):
     :param number_of_bytes: The number of bytes to receive.
     """
     data, address = socket.recvfrom(number_of_bytes)
-    if sys.version_info[0] == 2:
-        return data, address
-    else:
-        if isinstance(data, bytes):
-            return str(data, 'utf-8'), address
+    if sys.version_info[0] > 2 and isinstance(data, bytes):
+        return str(data, 'utf-8'), address
+
+    return data, address
+
 
 if __name__ == "__main__":
     main()

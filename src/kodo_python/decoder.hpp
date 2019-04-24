@@ -54,12 +54,37 @@ PyObject* decoder_write_payload(Decoder& decoder)
 }
 
 template<class Decoder>
+PyObject* decoder_write_symbol(Decoder& decoder, PyObject* coefficients)
+{
+    assert(PyByteArray_Check(coefficients) && "The coefficients should be a "
+           "Python bytearray object");
+
+    std::vector<uint8_t> symbol(decoder.symbol_size());
+    uint32_t length = decoder.write_symbol(symbol.data(),
+        (uint8_t*)PyByteArray_AsString(coefficients));
+
+    return PyByteArray_FromStringAndSize((char*)symbol.data(), length);
+}
+
+template<class Decoder>
 void read_payload(Decoder& decoder, PyObject* obj)
 {
     assert(PyByteArray_Check(obj) && "The payload buffer should be a "
            "Python bytearray object");
 
     decoder.read_payload((uint8_t*)PyByteArray_AsString(obj));
+}
+
+template<class Decoder>
+void read_symbol(Decoder& decoder, PyObject* payload, PyObject* coefficients)
+{
+    assert(PyByteArray_Check(payload) && "The payload buffer should be a "
+           "Python bytearray object");
+    assert(PyByteArray_Check(coefficients) && "The coefficients buffer should "
+           "be a Python bytearray object");
+
+    decoder.read_symbol((uint8_t*)PyByteArray_AsString(payload),
+          (uint8_t*)PyByteArray_AsString(coefficients));
 }
 
 template<class Coder>
@@ -90,6 +115,12 @@ void decoder(const std::string& name)
              arg("symbol_data"),
              "Decode the provided encoded payload.\n\n"
              "\t:param symbol_data: The encoded payload.\n")
+        .def("read_symbol", &read_symbol<decoder_type>,
+             args("symbol_data", "coefficients"),
+             "Decode the provided encoded symbol with the provided coding "
+             "coefficients.\n\n"
+             "\t:param symbol_data: The encoded payload.\n"
+             "\t:param coefficients: The coding coefficients.\n")
         .def("is_complete", &decoder_type::is_complete,
              "Check whether decoding is complete.\n\n"
              "\t:returns: True if the decoding is complete.\n")

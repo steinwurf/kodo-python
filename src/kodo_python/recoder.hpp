@@ -34,6 +34,19 @@ void recoder_read_payload(Recoder& recoder, PyObject* obj)
     recoder.read_payload((uint8_t*)PyByteArray_AsString(obj));
 }
 
+template<class Recoder>
+void recoder_read_symbol(Recoder& recoder, PyObject* payload,
+    PyObject* coefficients)
+{
+    assert(PyByteArray_Check(payload) && "The payload buffer should be a "
+           "Python bytearray object");
+    assert(PyByteArray_Check(coefficients) && "The coefficients buffer should "
+           "be a Python bytearray object");
+
+    recoder.read_symbol((uint8_t*)PyByteArray_AsString(payload),
+          (uint8_t*)PyByteArray_AsString(coefficients));
+}
+
 template<class Coder>
 struct extra_recoder_methods
 {
@@ -61,6 +74,12 @@ void recoder(const std::string& name)
              arg("symbol_data"),
              "Decode the provided encoded payload.\n\n"
              "\t:param symbol_data: The encoded payload.\n")
+        .def("read_symbol", &recoder_read_symbol<recoder_type>,
+             args("symbol_data", "coefficients"),
+             "Decode the provided encoded symbol with the provided coding "
+             "coefficients.\n\n"
+             "\t:param symbol_data: The encoded payload.\n"
+             "\t:param coefficients: The coding coefficients.\n")
         .def("write_payload", &recoder_write_payload<recoder_type>,
              "Generate an recoded payload.\n\n"
              "\t:returns: The bytearray containing the recoded payload.\n");

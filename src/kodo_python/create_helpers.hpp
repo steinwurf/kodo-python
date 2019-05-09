@@ -15,29 +15,29 @@
 namespace kodo_python
 {
 template<class Coder>
-void create_factory_and_encoder(const std::string& stack)
+void create_factory_and_encoder(pybind11::module& m, const std::string& stack)
 {
     // First create the factory type
-    factory<Coder>(stack);
+    factory<Coder>(m, stack);
     // Then create the corresponding encoder type
-    encoder<Coder>(stack);
+    encoder<Coder>(m, stack);
 }
 
 template<class Coder>
-void create_factory_and_decoder(const std::string& stack)
+void create_factory_and_decoder(pybind11::module& m, const std::string& stack)
 {
     // First create the factory type
-    factory<Coder>(stack);
+    factory<Coder>(m, stack);
     // Then create the corresponding decoder type
-    decoder<Coder>(stack);
+    decoder<Coder>(m, stack);
 }
 
 template<class Coder>
-void create_factory_and_recoder(const std::string& stack)
+void create_factory_and_recoder(pybind11::module& m, const std::string& stack)
 {
     // First create the factory type
-    factory<Coder>(stack);
+    factory<Coder>(m, stack);
     // Then create the corresponding recoder type
-    recoder<Coder>(stack);
+    recoder<Coder>(m, stack);
 }
 }

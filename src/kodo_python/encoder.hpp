@@ -5,20 +5,21 @@
 
 #pragma once
 
+#include <pybind11/pybind11.h>
+
 #include <cassert>
 #include <cstdint>
 #include <string>
 #include <vector>
-
-#include <boost/python.hpp>
 
 #include "coder.hpp"
 
 namespace kodo_python
 {
 template<class Encoder>
-void set_const_symbols(Encoder& encoder, PyObject* obj)
+void set_const_symbols(Encoder& encoder, pybind11::handle handle)
 {
+    PyObject* obj = handle.ptr();
     assert(PyByteArray_Check(obj) && "The symbol storage should be a "
            "Python bytearray object");
 
@@ -30,8 +31,10 @@ void set_const_symbols(Encoder& encoder, PyObject* obj)
 }
 
 template<class Encoder>
-void set_const_symbol(Encoder& encoder, uint32_t index, PyObject* obj)
+void set_const_symbol(
+    Encoder& encoder, uint32_t index, pybind11::handle handle)
 {
+    PyObject* obj = handle.ptr();
     assert(PyByteArray_Check(obj) && "The symbol storage should be a "
            "Python bytearray object");
 
@@ -43,7 +46,7 @@ void set_const_symbol(Encoder& encoder, uint32_t index, PyObject* obj)
 }
 
 template<class Encoder>
-PyObject* encoder_write_payload(Encoder& encoder)
+pybind11::handle encoder_write_payload(Encoder& encoder)
 {
     std::vector<uint8_t> payload(encoder.payload_size());
     uint32_t length = encoder.write_payload(payload.data());
@@ -62,14 +65,14 @@ struct extra_encoder_methods
 };
 
 template<class Coder>
-void encoder(const std::string& name)
+void encoder(pybind11::module& m, const std::string& name)
 {
-    using namespace boost::python;
+    using namespace pybind11;
 
     using encoder_type = Coder;
 
     auto encoder_class =
-        coder<Coder>(name)
+        coder<Coder>(m, name)
         .def("rank", &encoder_type::rank,
              "Return the current rank of the encoder.\n\n"
              "The rank of an encoder indicates how many symbols are\n"
@@ -83,7 +86,7 @@ void encoder(const std::string& name)
              "Set the symbols to be encoded.\n\n"
              "\t:param symbols: The symbols to be encoded.\n")
         .def("set_const_symbol", &set_const_symbol<encoder_type>,
-             args("index", "symbol"),
+             arg("index"), arg("symbol"),
              "Set a symbol to be encoded.\n\n"
              "\t:param index: The index of the symbol in the coding block.\n"
              "\t:param symbol: The actual data of that symbol.\n");

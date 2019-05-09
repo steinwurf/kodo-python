@@ -5,19 +5,19 @@
 
 #pragma once
 
+#include <pybind11/pybind11.h>
+
 #include <cassert>
 #include <cstdint>
 #include <string>
 #include <vector>
-
-#include <boost/python.hpp>
 
 #include "coder.hpp"
 
 namespace kodo_python
 {
 template<class Recoder>
-PyObject* recoder_write_payload(Recoder& recoder)
+pybind11::handle recoder_write_payload(Recoder& recoder)
 {
     std::vector<uint8_t> payload(recoder.payload_size());
     uint32_t length = recoder.write_payload(payload.data());
@@ -26,8 +26,9 @@ PyObject* recoder_write_payload(Recoder& recoder)
 }
 
 template<class Recoder>
-void recoder_read_payload(Recoder& recoder, PyObject* obj)
+void recoder_read_payload(Recoder& recoder, pybind11::handle handle)
 {
+    PyObject* obj = handle.ptr();
     assert(PyByteArray_Check(obj) && "The payload buffer should be a "
            "Python bytearray object");
 
@@ -45,14 +46,14 @@ struct extra_recoder_methods
 };
 
 template<class Coder>
-void recoder(const std::string& name)
+void recoder(pybind11::module& m, const std::string& name)
 {
-    using namespace boost::python;
+    using namespace pybind11;
 
     using recoder_type = Coder;
 
     auto recoder_class =
-        coder<Coder>(name)
+        coder<Coder>(m, name)
         .def("recoder_symbols", &recoder_type::recoder_symbols,
              "Return the number of internal symbols that can be stored in "
              "the pure recoder.\n\n"

@@ -9,12 +9,12 @@
         ]
     },
     {
-        "name": "boost",
+        "name": "pybind11",
         "resolver": "git",
-        "method": "semver",
-        "major": 3,
+        "method": "checkout",
+        "checkout": "master",
         "sources": [
-            "github.com/steinwurf/boost.git"
+            "github.com/steinwurf/pybind11.git"
         ]
     },
     {

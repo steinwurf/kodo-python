@@ -5,9 +5,7 @@
 
 #if !defined(KODO_PYTHON_DISABLE_FULCRUM)
 
-// boost/python.hpp should be the first include in every .cpp file to work
-// around this bug: https://bugs.python.org/issue10910
-#include <boost/python.hpp>
+#include <pybind11/pybind11.h>
 
 #include <kodo_fulcrum/coders.hpp>
 
@@ -22,12 +20,12 @@ static void fulcrum_coder_methods(CoderClass& coder_class)
 {
     coder_class
     .def("expansion",
-         &CoderClass::wrapped_type::expansion,
+         &CoderClass::type::expansion,
          "Get the expansion which denotes the number of additional "
          "symbols created by the outer code.\n\n"
          "\t:returns: The expansion used.\n")
     .def("inner_symbols",
-         &CoderClass::wrapped_type::inner_symbols,
+         &CoderClass::type::inner_symbols,
          "Get the number of symbols in the inner code.\n\n"
          "\t:returns: The number of symbols in the inner code.\n");
 }
@@ -36,16 +34,16 @@ static void fulcrum_coder_methods(CoderClass& coder_class)
 template<class FactoryClass>
 static void fulcrum_factory_methods(FactoryClass& factory_class)
 {
-    using boost::python::arg;
+    using pybind11::arg;
 
     factory_class
     .def("expansion",
-         &FactoryClass::wrapped_type::expansion,
+         &FactoryClass::type::expansion,
          "Get the expansion which denotes the number of additional "
          "symbols created by the outer code.\n\n"
          "\t:returns: The expansion used.\n")
     .def("set_expansion",
-         &FactoryClass::wrapped_type::set_expansion,
+         &FactoryClass::type::set_expansion,
          arg("expansion"),
          "Set the number of expansion symbols.\n\n"
          "\t:param expansion: The number of expansion symbols to use.\n");
@@ -57,11 +55,11 @@ struct extra_encoder_methods<kodo_fulcrum::encoder>
     template<class EncoderClass>
     extra_encoder_methods(EncoderClass& encoder_class)
     {
-        using boost::python::arg;
+        using pybind11::arg;
 
         encoder_class
         .def("set_seed",
-             &EncoderClass::wrapped_type::set_seed, arg("seed"),
+             &EncoderClass::type::set_seed, arg("seed"),
              "Set the seed of the coefficient generator.\n\n"
              "\t:param seed: The seed value.\n");
 
@@ -100,10 +98,10 @@ struct extra_factory_methods<kodo_fulcrum::decoder>
     }
 };
 
-void create_fulcrum_stacks()
+void create_fulcrum_stacks(pybind11::module& m)
 {
-    create_factory_and_encoder<kodo_fulcrum::encoder>("FulcrumEncoder");
-    create_factory_and_decoder<kodo_fulcrum::decoder>("FulcrumDecoder");
+    create_factory_and_encoder<kodo_fulcrum::encoder>(m, "FulcrumEncoder");
+    create_factory_and_decoder<kodo_fulcrum::decoder>(m, "FulcrumDecoder");
 }
 }
 

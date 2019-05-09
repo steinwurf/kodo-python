@@ -5,12 +5,12 @@
 
 #pragma once
 
+#include <pybind11/pybind11.h>
+
 #include <cassert>
 #include <cstdint>
 #include <string>
 #include <vector>
-
-#include <boost/python.hpp>
 
 #include <storage/storage.hpp>
 
@@ -19,8 +19,9 @@
 namespace kodo_python
 {
 template<class Decoder>
-void set_mutable_symbols(Decoder& decoder, PyObject* obj)
+void set_mutable_symbols(Decoder& decoder, pybind11::handle handle)
 {
+    PyObject* obj = handle.ptr();
     assert(PyByteArray_Check(obj) && "The symbol storage should be a "
            "Python bytearray object");
 
@@ -32,8 +33,10 @@ void set_mutable_symbols(Decoder& decoder, PyObject* obj)
 }
 
 template<class Decoder>
-void set_mutable_symbol(Decoder& decoder, uint32_t index, PyObject* obj)
+void set_mutable_symbol(
+    Decoder& decoder, uint32_t index, pybind11::handle handle)
 {
+    PyObject* obj = handle.ptr();
     assert(PyByteArray_Check(obj) && "The symbol storage should be a "
            "Python bytearray object");
 
@@ -45,7 +48,7 @@ void set_mutable_symbol(Decoder& decoder, uint32_t index, PyObject* obj)
 }
 
 template<class Decoder>
-PyObject* decoder_write_payload(Decoder& decoder)
+pybind11::handle decoder_write_payload(Decoder& decoder)
 {
     std::vector<uint8_t> payload(decoder.payload_size());
     auto length = decoder.write_payload(payload.data());
@@ -54,8 +57,9 @@ PyObject* decoder_write_payload(Decoder& decoder)
 }
 
 template<class Decoder>
-void read_payload(Decoder& decoder, PyObject* obj)
+void read_payload(Decoder& decoder, pybind11::handle handle)
 {
+    PyObject* obj = handle.ptr();
     assert(PyByteArray_Check(obj) && "The payload buffer should be a "
            "Python bytearray object");
 
@@ -73,14 +77,14 @@ struct extra_decoder_methods
 };
 
 template<class Coder>
-void decoder(const std::string& name)
+void decoder(pybind11::module& m, const std::string& name)
 {
-    using namespace boost::python;
+    using namespace pybind11;
 
     using decoder_type = Coder;
 
     auto decoder_class =
-        coder<Coder>(name)
+        coder<Coder>(m, name)
         .def("rank", &decoder_type::rank,
              "Return the current rank of the decoder.\n\n"
              "The rank of a decoder indicates how many symbols have been "
@@ -143,7 +147,7 @@ void decoder(const std::string& name)
              "Set the buffer where the decoded symbols should be stored.\n\n"
              "\t:param symbols: The bytearray to store the symbols.\n")
         .def("set_mutable_symbol", &set_mutable_symbol<decoder_type>,
-             args("index", "symbol"),
+             arg("index"), arg("symbol"),
              "Set the storage for a single symbol.\n\n"
              "\t:param index: The index of the symbol in the coding block.\n"
              "\t:param symbol: The bytearray to store the symbol.\n");

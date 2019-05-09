@@ -77,8 +77,7 @@ def configure(conf):
 
 def build(bld):
 
-    # Ensure that Python was configured properly in the configure step of
-    # the boost wscript (boost-python needs to be configured in the boost repo)
+    # Ensure that Python was configured properly
     if not bld.env['BUILD_PYTHON']:
         bld.fatal('Python was not configured properly')
 
@@ -96,24 +95,19 @@ def build(bld):
     bld.env['CFLAGS_PYEXT'] = []
     bld.env['CXXFLAGS_PYEXT'] = []
 
-    extra_linkflags = []
     CXX = bld.env.get_flat("CXX")
     if 'g++' in CXX or 'clang' in CXX:
         bld.env.append_value('CXXFLAGS', '-fPIC')
-    # Matches MSVC
-    if 'CL.exe' in CXX or 'cl.exe' in CXX:
-        extra_linkflags = ['/EXPORT:initkodo']
+
 
     bld(features='cxx cxxshlib pyext',
         source=bld.path.ant_glob('src/kodo_python/**/*.cpp'),
         target='kodo',
         name='kodo-python',
-        linkflags=extra_linkflags,
         use=[
             'STEINWURF_VERSION',
             'KODO_PYTHON_COMMON',
-            'boost_includes',
-            'boost_python',
+            'pybind11_includes',
             'kodo_core',
             'kodo_rlnc',
             'kodo_perpetual',

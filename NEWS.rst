@@ -7,6 +7,7 @@ every change, see the Git log.
 Latest
 ------
 * tbd
+* Major: Use pybind11 instead of boost-python.
 
 13.1.0
 ------

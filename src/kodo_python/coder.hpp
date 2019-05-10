@@ -31,6 +31,8 @@ pybind11::class_<Coder> coder(pybind11::module& m, const std::string& name)
 
     using coder_type = Coder;
 
+    // Declare std::shared_ptr as a holder type, because the factories
+    // return a shared_ptr when building a coder instance
     auto coder_class = class_<coder_type, std::shared_ptr<coder_type>>(
         m, name.c_str(), "A coder object")
         .def("payload_size", &coder_type::payload_size,
@@ -61,6 +63,6 @@ pybind11::class_<Coder> coder(pybind11::module& m, const std::string& name)
              "\t:param zone_prefix: The zone prefix to append to all "
              "tracing zones.");
 
-    return coder_class;
+    return std::move(coder_class);
 }
 }

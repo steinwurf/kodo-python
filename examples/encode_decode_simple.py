@@ -24,9 +24,6 @@ def main():
     # actual encoders/decoders
     encoder_factory = kodo.RLNCEncoderFactory(field, symbols, symbol_size)
     encoder = encoder_factory.build()
-    print(type(encoder))
-    print(encoder.block_size())
-    print(encoder.payload_size())
 
     decoder_factory = kodo.RLNCDecoderFactory(field, symbols, symbol_size)
     decoder = decoder_factory.build()
@@ -34,7 +31,6 @@ def main():
     # Generate some random data to encode. We create a bytearray of the same
     # size as the encoder's block size and assign it to the encoder.
     # This bytearray must not go out of scope while the encoder exists!
-
     data_in = bytearray(os.urandom(encoder.block_size()))
     encoder.set_const_symbols(data_in)
 

@@ -12,7 +12,7 @@
         "name": "pybind11",
         "resolver": "git",
         "method": "checkout",
-        "checkout": "master",
+        "checkout": "enable-tests",
         "sources": [
             "github.com/steinwurf/pybind11.git"
         ]

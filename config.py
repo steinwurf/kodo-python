@@ -13,7 +13,6 @@ project_name = 'kodo-python'
 project_dependencies = \
     [
         'waf-tools',
-        'gtest',
         'pybind11',
         'boost',
         'allocate',

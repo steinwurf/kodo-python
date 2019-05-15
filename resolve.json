@@ -11,8 +11,8 @@
     {
         "name": "pybind11",
         "resolver": "git",
-        "method": "checkout",
-        "checkout": "enable-tests",
+        "method": "semver",
+        "major": 1,
         "sources": [
             "github.com/steinwurf/pybind11.git"
         ]

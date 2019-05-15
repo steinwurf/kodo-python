@@ -11,7 +11,8 @@ codecs = ['nocode', 'rlnc', 'perpetual', 'fulcrum']
 
 def options(opt):
 
-    opt.load('python')
+    if opt.is_toplevel():
+        opt.load('python')
 
     opts = opt.add_option_group('kodo-python options')
 

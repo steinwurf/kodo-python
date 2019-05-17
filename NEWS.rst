@@ -7,6 +7,11 @@ every change, see the Git log.
 Latest
 ------
 * tbd
+* Major: Use pybind11 instead of boost-python.
+
+13.1.1
+------
+* Patch: Fixed Python header warnings on certain Linux platforms.
 
 13.1.0
 ------

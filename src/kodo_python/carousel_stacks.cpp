@@ -5,9 +5,7 @@
 
 #if !defined(KODO_PYTHON_DISABLE_NOCODE)
 
-// boost/python.hpp should be the first include in every .cpp file to work
-// around this bug: https://bugs.python.org/issue10910
-#include <boost/python.hpp>
+#include <pybind11/pybind11.h>
 
 #include <kodo_core/nocode/carousel_decoder.hpp>
 #include <kodo_core/nocode/carousel_encoder.hpp>
@@ -16,12 +14,12 @@
 
 namespace kodo_python
 {
-void create_carousel_stacks()
+void create_carousel_stacks(pybind11::module& m)
 {
     using namespace kodo_core::nocode;
 
-    create_factory_and_encoder<carousel_encoder>("NoCodeEncoder");
-    create_factory_and_decoder<carousel_decoder>("NoCodeDecoder");
+    create_factory_and_encoder<carousel_encoder>(m, "NoCodeEncoder");
+    create_factory_and_decoder<carousel_decoder>(m, "NoCodeDecoder");
 }
 }
 

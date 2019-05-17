@@ -3,9 +3,7 @@
 // See accompanying file LICENSE.rst or
 // http://www.steinwurf.com/licensing
 
-// boost/python.hpp should be the first include in every .cpp file to work
-// around this bug: https://bugs.python.org/issue10910
-#include <boost/python.hpp>
+#include <pybind11/pybind11.h>
 
 #include <string>
 
@@ -14,35 +12,33 @@
 namespace kodo_python
 {
 // Forward declarations of "create" functions implemented in other cpp files
-void create_carousel_stacks();
-void create_rlnc_stacks();
-void create_perpetual_stacks();
-void create_fulcrum_stacks();
+void create_carousel_stacks(pybind11::module& m);
+void create_rlnc_stacks(pybind11::module& m);
+void create_perpetual_stacks(pybind11::module& m);
+void create_fulcrum_stacks(pybind11::module& m);
 
-void create_stacks()
+void create_stacks(pybind11::module& m)
 {
-    using namespace boost::python;
-
-    enum_<fifi::api::field>("field")
+    pybind11::enum_<fifi::api::field>(m, "field")
     .value("binary", fifi::api::field::binary)
     .value("binary4", fifi::api::field::binary4)
     .value("binary8", fifi::api::field::binary8)
     .value("binary16", fifi::api::field::binary16);
 
 #if !defined(KODO_PYTHON_DISABLE_NOCODE)
-    create_carousel_stacks();
+    create_carousel_stacks(m);
 #endif
 
 #if !defined(KODO_PYTHON_DISABLE_RLNC)
-    create_rlnc_stacks();
+    create_rlnc_stacks(m);
 #endif
 
 #if !defined(KODO_PYTHON_DISABLE_PERPETUAL)
-    create_perpetual_stacks();
+    create_perpetual_stacks(m);
 #endif
 
 #if !defined(KODO_PYTHON_DISABLE_FULCRUM)
-    create_fulcrum_stacks();
+    create_fulcrum_stacks(m);
 #endif
 }
 
@@ -52,6 +48,11 @@ std::string version()
     version += STEINWURF_KODO_PYTHON_VERSION;
 
     // Add dependency versions:
+
+    version += std::string("\n\tpybind11: ");
+#ifdef STEINWURF_PYBIND11_VERSION
+    version += std::string(STEINWURF_PYBIND11_VERSION);
+#endif
 
     version += std::string("\n\tboost: ");
 #ifdef STEINWURF_BOOST_VERSION
@@ -107,17 +108,13 @@ std::string version()
     return version;
 }
 
-void create_version_function()
+PYBIND11_MODULE(kodo, m)
 {
-    using namespace boost::python;
-    scope().attr("__version__") = version();
-}
+    pybind11::options options;
+    options.disable_function_signatures();
 
-BOOST_PYTHON_MODULE(kodo)
-{
-    boost::python::docstring_options doc_options;
-    doc_options.disable_signatures();
-    create_version_function();
-    create_stacks();
+    m.attr("__version__") = version();
+
+    create_stacks(m);
 }
 }

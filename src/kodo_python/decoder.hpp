@@ -5,12 +5,12 @@
 
 #pragma once
 
+#include <pybind11/pybind11.h>
+
 #include <cassert>
 #include <cstdint>
 #include <string>
 #include <vector>
-
-#include <boost/python.hpp>
 
 #include <storage/storage.hpp>
 
@@ -19,8 +19,9 @@
 namespace kodo_python
 {
 template<class Decoder>
-void set_mutable_symbols(Decoder& decoder, PyObject* obj)
+void set_mutable_symbols(Decoder& decoder, pybind11::handle handle)
 {
+    PyObject* obj = handle.ptr();
     assert(PyByteArray_Check(obj) && "The symbol storage should be a "
            "Python bytearray object");
 
@@ -32,8 +33,10 @@ void set_mutable_symbols(Decoder& decoder, PyObject* obj)
 }
 
 template<class Decoder>
-void set_mutable_symbol(Decoder& decoder, uint32_t index, PyObject* obj)
+void set_mutable_symbol(
+    Decoder& decoder, uint32_t index, pybind11::handle handle)
 {
+    PyObject* obj = handle.ptr();
     assert(PyByteArray_Check(obj) && "The symbol storage should be a "
            "Python bytearray object");
 
@@ -45,7 +48,7 @@ void set_mutable_symbol(Decoder& decoder, uint32_t index, PyObject* obj)
 }
 
 template<class Decoder>
-PyObject* decoder_write_payload(Decoder& decoder)
+pybind11::handle decoder_write_payload(Decoder& decoder)
 {
     std::vector<uint8_t> payload(decoder.payload_size());
     auto length = decoder.write_payload(payload.data());
@@ -54,21 +57,10 @@ PyObject* decoder_write_payload(Decoder& decoder)
 }
 
 template<class Decoder>
-PyObject* decoder_write_symbol(Decoder& decoder, PyObject* coefficients)
+void read_payload(Decoder& decoder, pybind11::handle handle)
+
 {
-    assert(PyByteArray_Check(coefficients) && "The coefficients should be a "
-           "Python bytearray object");
-
-    std::vector<uint8_t> symbol(decoder.symbol_size());
-    uint32_t length = decoder.write_symbol(symbol.data(),
-        (uint8_t*)PyByteArray_AsString(coefficients));
-
-    return PyByteArray_FromStringAndSize((char*)symbol.data(), length);
-}
-
-template<class Decoder>
-void read_payload(Decoder& decoder, PyObject* obj)
-{
+    PyObject* obj = handle.ptr();
     assert(PyByteArray_Check(obj) && "The payload buffer should be a "
            "Python bytearray object");
 
@@ -76,15 +68,19 @@ void read_payload(Decoder& decoder, PyObject* obj)
 }
 
 template<class Decoder>
-void read_symbol(Decoder& decoder, PyObject* payload, PyObject* coefficients)
+void read_symbol(
+    Decoder& decoder, pybind11::handle handle1, pybind11::handle handle2)
 {
+    PyObject* payload = handle1.ptr();
+    PyObject* coefficients = handle2.ptr();
     assert(PyByteArray_Check(payload) && "The payload buffer should be a "
            "Python bytearray object");
     assert(PyByteArray_Check(coefficients) && "The coefficients buffer should "
            "be a Python bytearray object");
 
-    decoder.read_symbol((uint8_t*)PyByteArray_AsString(payload),
-          (uint8_t*)PyByteArray_AsString(coefficients));
+    decoder.read_symbol(
+        (uint8_t*)PyByteArray_AsString(payload),
+        (uint8_t*)PyByteArray_AsString(coefficients));
 }
 
 template<class Coder>
@@ -98,14 +94,14 @@ struct extra_decoder_methods
 };
 
 template<class Coder>
-void decoder(const std::string& name)
+void decoder(pybind11::module& m, const std::string& name)
 {
-    using namespace boost::python;
+    using namespace pybind11;
 
     using decoder_type = Coder;
 
     auto decoder_class =
-        coder<Coder>(name)
+        coder<Coder>(m, name)
         .def("rank", &decoder_type::rank,
              "Return the current rank of the decoder.\n\n"
              "The rank of a decoder indicates how many symbols have been "
@@ -116,7 +112,7 @@ void decoder(const std::string& name)
              "Decode the provided encoded payload.\n\n"
              "\t:param symbol_data: The encoded payload.\n")
         .def("read_symbol", &read_symbol<decoder_type>,
-             args("symbol_data", "coefficients"),
+             arg("symbol_data"), arg("coefficients"),
              "Decode the provided encoded symbol with the provided coding "
              "coefficients.\n\n"
              "\t:param symbol_data: The encoded payload.\n"
@@ -174,7 +170,7 @@ void decoder(const std::string& name)
              "Set the buffer where the decoded symbols should be stored.\n\n"
              "\t:param symbols: The bytearray to store the symbols.\n")
         .def("set_mutable_symbol", &set_mutable_symbol<decoder_type>,
-             args("index", "symbol"),
+             arg("index"), arg("symbol"),
              "Set the storage for a single symbol.\n\n"
              "\t:param index: The index of the symbol in the coding block.\n"
              "\t:param symbol: The bytearray to store the symbol.\n");

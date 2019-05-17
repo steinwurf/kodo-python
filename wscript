@@ -4,14 +4,15 @@
 import os
 
 APPNAME = 'kodo-python'
-VERSION = '13.1.0'
+VERSION = '13.1.1'
 
 codecs = ['nocode', 'rlnc', 'perpetual', 'fulcrum']
 
 
 def options(opt):
 
-    opt.load('python')
+    if opt.is_toplevel():
+        opt.load('python')
 
     opts = opt.add_option_group('kodo-python options')
 
@@ -77,43 +78,18 @@ def configure(conf):
 
 def build(bld):
 
-    # Ensure that Python was configured properly in the configure step of
-    # the boost wscript (boost-python needs to be configured in the boost repo)
-    if not bld.env['BUILD_PYTHON']:
-        bld.fatal('Python was not configured properly')
-
     bld.env.append_unique(
         'DEFINES_STEINWURF_VERSION',
         'STEINWURF_KODO_PYTHON_VERSION="{}"'.format(VERSION))
-
-    # Remove NDEBUG which is added from conf.check_python_headers
-    flag_to_remove = 'NDEBUG'
-    defines = ['DEFINES_PYEMBED', 'DEFINES_PYEXT']
-    for define in defines:
-        while(flag_to_remove in bld.env[define]):
-            bld.env[define].remove(flag_to_remove)
-
-    bld.env['CFLAGS_PYEXT'] = []
-    bld.env['CXXFLAGS_PYEXT'] = []
-
-    extra_linkflags = []
-    CXX = bld.env.get_flat("CXX")
-    if 'g++' in CXX or 'clang' in CXX:
-        bld.env.append_value('CXXFLAGS', '-fPIC')
-    # Matches MSVC
-    if 'CL.exe' in CXX or 'cl.exe' in CXX:
-        extra_linkflags = ['/EXPORT:initkodo']
 
     bld(features='cxx cxxshlib pyext',
         source=bld.path.ant_glob('src/kodo_python/**/*.cpp'),
         target='kodo',
         name='kodo-python',
-        linkflags=extra_linkflags,
         use=[
             'STEINWURF_VERSION',
             'KODO_PYTHON_COMMON',
-            'boost_includes',
-            'boost_python',
+            'pybind11_includes',
             'kodo_core',
             'kodo_rlnc',
             'kodo_perpetual',

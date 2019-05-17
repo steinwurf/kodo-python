@@ -5,9 +5,9 @@
 
 #pragma once
 
-#include <string>
+#include <pybind11/pybind11.h>
 
-#include <boost/python.hpp>
+#include <string>
 
 namespace kodo_python
 {
@@ -22,23 +22,23 @@ struct extra_factory_methods
 };
 
 template<class Coder>
-void factory(const std::string& stack)
+void factory(pybind11::module& m, const std::string& stack)
 {
-    using namespace boost::python;
+    using namespace pybind11;
 
     using stack_type = Coder;
     using factory_type = typename stack_type::factory;
 
     std::string name = stack + std::string("Factory");
 
-    auto factory_class = class_<factory_type, boost::noncopyable>(
-        name.c_str(), "Factory for creating encoders/decoders.",
-        init<fifi::api::field, uint32_t, uint32_t>(
-            args("field", "symbols", "symbol_size"),
-            "Factory constructor.\n\n"
-            "\t:param field: The finite field to use.\n"
-            "\t:param symbols: The number of symbols in a block.\n"
-            "\t:param symbol_size: The size of a symbol in bytes.\n"))
+    auto factory_class = class_<factory_type>(
+        m, name.c_str(), "Factory for creating encoders/decoders.")
+        .def(init<fifi::api::field, uint32_t, uint32_t>(),
+             arg("field"), arg("symbols"), arg("symbol_size"),
+             "Factory constructor.\n\n"
+             "\t:param field: The finite field to use.\n"
+             "\t:param symbols: The number of symbols in a block.\n"
+             "\t:param symbol_size: The size of a symbol in bytes.\n")
         .def("build", &factory_type::build,
              "Build the actual coder.\n\n"
              "\t:returns: A coder instance.\n")
@@ -57,9 +57,5 @@ void factory(const std::string& stack)
              "\t:returns: The symbol size in bytes.\n");
 
     (extra_factory_methods<Coder>(factory_class));
-
-    // Enable boost to map from the c++ pointer type to the python coder
-    // type. E.g., from std::shared_ptr<Codec> to python [Codec]Encoder.
-    boost::python::register_ptr_to_python<typename factory_type::pointer>();
 }
 }

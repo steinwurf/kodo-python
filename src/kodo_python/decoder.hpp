@@ -71,16 +71,27 @@ template<class Decoder>
 void read_symbol(
     Decoder& decoder, pybind11::handle handle1, pybind11::handle handle2)
 {
-    PyObject* payload = handle1.ptr();
+    PyObject* symbol_data = handle1.ptr();
     PyObject* coefficients = handle2.ptr();
-    assert(PyByteArray_Check(payload) && "The payload buffer should be a "
+    assert(PyByteArray_Check(symbol_data) && "The symbol buffer should be a "
            "Python bytearray object");
     assert(PyByteArray_Check(coefficients) && "The coefficients buffer should "
            "be a Python bytearray object");
 
     decoder.read_symbol(
-        (uint8_t*)PyByteArray_AsString(payload),
+        (uint8_t*)PyByteArray_AsString(symbol_data),
         (uint8_t*)PyByteArray_AsString(coefficients));
+}
+
+template<class Decoder>
+void read_uncoded_symbol(
+    Decoder& decoder, pybind11::handle handle, uint32_t index)
+{
+    PyObject* obj = handle.ptr();
+    assert(PyByteArray_Check(obj) && "The symbol buffer should be a "
+           "Python bytearray object");
+
+    decoder.read_uncoded_symbol((uint8_t*)PyByteArray_AsString(obj), index);
 }
 
 template<class Coder>
@@ -117,6 +128,11 @@ void decoder(pybind11::module& m, const std::string& name)
              "coefficients.\n\n"
              "\t:param symbol_data: The encoded payload.\n"
              "\t:param coefficients: The coding coefficients.\n")
+        .def("read_uncoded_symbol", &read_uncoded_symbol<decoder_type>,
+             arg("symbol_data"), arg("index"),
+             "Decode the provided systematic symbol.\n\n"
+             "\t:param symbol_data: The systematic symbol.\n"
+             "\t:param index: The index of this systematic symbol.\n")
         .def("is_complete", &decoder_type::is_complete,
              "Check whether decoding is complete.\n\n"
              "\t:returns: True if the decoding is complete.\n")

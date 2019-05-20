@@ -68,6 +68,26 @@ pybind11::handle encoder_write_symbol(Encoder& encoder, pybind11::handle handle)
     return PyByteArray_FromStringAndSize((char*)symbol.data(), length);
 }
 
+
+template<class Encoder>
+pybind11::handle encoder_write_uncoded_symbol(Encoder& encoder, uint32_t index)
+{
+    std::vector<uint8_t> symbol(encoder.symbol_size());
+    uint32_t length = encoder.write_uncoded_symbol(symbol.data(), index);
+
+    return PyByteArray_FromStringAndSize((char*)symbol.data(), length);
+}
+
+template<class Encoder>
+pybind11::handle encoder_generate(Encoder& encoder)
+{
+    std::vector<uint8_t> coefficients(encoder.coefficient_vector_size());
+    encoder.generate(coefficients.data());
+
+    return PyByteArray_FromStringAndSize(
+        (char*)coefficients.data(), coefficients.size());
+}
+
 template<class Coder>
 struct extra_encoder_methods
 {
@@ -100,6 +120,15 @@ void encoder(pybind11::module& m, const std::string& name)
              "Generate an encoded symbol using the given coefficients.\n\n"
              "\t:param coefficients: The coding coefficients.\n"
              "\t:returns: The bytearray containing the encoded symbol.\n")
+        .def("write_uncoded_symbol",
+             &encoder_write_uncoded_symbol<encoder_type>,
+             arg("index"),
+             "Return a systematic symbol for the given symbol index.\n\n"
+             "\t:param index: The symbol index with the coding block.\n"
+             "\t:returns: The bytearray containing the systematic symbol.\n")
+        .def("generate", &encoder_generate<encoder_type>,
+             "Generate some coding coefficients.\n\n"
+             "\t:returns: The bytearray containing the coding coefficients.\n")
         .def("set_const_symbols", &set_const_symbols<encoder_type>,
              arg("symbols"),
              "Set the symbols to be encoded.\n\n"

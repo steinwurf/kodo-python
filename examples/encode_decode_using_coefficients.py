@@ -1,0 +1,91 @@
+#! /usr/bin/env python
+# encoding: utf-8
+
+# Copyright Steinwurf ApS 2015.
+# Distributed under the "STEINWURF EVALUATION LICENSE 1.0".
+# See accompanying file LICENSE.rst or
+# http://www.steinwurf.com/licensing
+
+import os
+import sys
+
+import kodo
+
+
+def main():
+    """
+    Encode-decode using coefficients example.
+
+    This example shows how to use the Symbol API with direct coefficient
+    access. Using this approach the we have full control over where
+    coefficients are stored, however we also have to manage things such as
+    systematic symbols ourselves.
+    """
+    # Choose the finite field, the number of symbols (i.e. generation size)
+    # and the symbol size in bytes
+    field = kodo.field.binary8
+    symbols = 5
+    symbol_size = 160
+
+    # Create an encoder/decoder factory that are used to build the
+    # actual encoders/decoders
+    encoder_factory = kodo.RLNCEncoderFactory(field, symbols, symbol_size)
+    encoder = encoder_factory.build()
+
+    decoder_factory = kodo.RLNCDecoderFactory(field, symbols, symbol_size)
+    decoder = decoder_factory.build()
+
+    # Generate some random data to encode. We create a bytearray of the same
+    # size as the encoder's block size and assign it to the encoder.
+    # This bytearray must not go out of scope while the encoder exists!
+    data_in = bytearray(os.urandom(encoder.block_size()))
+    encoder.set_const_symbols(data_in)
+
+    # Define the data_out bytearray where the symbols should be decoded
+    # This bytearray must not go out of scope while the encoder exists!
+    data_out = bytearray(decoder.block_size())
+    decoder.set_mutable_symbols(data_out)
+
+    # Define a custom trace function for the decoder which filters the
+    # trace message based on their zones
+    def callback_function(zone, message):
+        if zone in ["decoder_state", "symbol_coefficients_before_read_symbol"]:
+            print("{}:".format(zone))
+            print(message)
+    # We want to follow the decoding process step-by-step
+    decoder.set_trace_callback(callback_function)
+
+    packet_number = 0
+    while not decoder.is_complete():
+        # Generate some random coefficients for encoding
+        coefficients = encoder.generate()
+        # We can print the individual coefficients here, because we use the
+        # binary8 field where each byte corresponds to a single coefficient.
+        # For other fields, we would need fifi-python to do this!
+        print("Coding coefficients:")
+        print(" ".join(str(c) for c in coefficients))
+        # Write a coded symbol to the symbol buffer
+        symbol = encoder.write_symbol(coefficients)
+
+        print("Symbol {} encoded!\n".format(packet_number))
+
+        # Pass that symbol and the corresponding coefficients to the decoder
+        print("Processing Symbol {}:\n".format(packet_number))
+        decoder.read_symbol(symbol, coefficients)
+
+        packet_number += 1
+        print("Rank: {}/{}\n".format(decoder.rank(), decoder.symbols()))
+
+    print("Coding finished")
+
+    # The decoder is complete, the decoded symbols are now available in
+    # the data_out buffer: check if it matches the data_in buffer
+    print("Checking results...")
+    if data_out == data_in:
+        print("Data decoded correctly")
+    else:
+        print("Unable to decode please file a bug report :)")
+        sys.exit(1)
+
+if __name__ == "__main__":
+    main()

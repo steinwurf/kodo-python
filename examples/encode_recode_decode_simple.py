@@ -16,7 +16,7 @@ def main():
     """
     Encode recode decode example.
 
-    In Network Coding applications one of the key features is the
+    In Network Coding applications, one of the key features is the
     ability of intermediate nodes in the network to recode packets
     as they traverse them. In Kodo it is possible to recode packets
     in decoders which provide the write_payload() function.
@@ -30,8 +30,8 @@ def main():
             |  encoder  |+---.| decoder1  |+---.|  decoder2 |
             +-----------+     | (recoder) |     +-----------+
                               +-----------+
-    In a practical application recoding can be using in several different
-    ways and one must consider several different factors e.g. such as
+    In a practical application recoding can be used in several different
+    ways and one must consider several different factors, such as
     reducing linear dependency by coordinating several recoding nodes
     in the network.
     Suggestions for dealing with such issues can be found in current

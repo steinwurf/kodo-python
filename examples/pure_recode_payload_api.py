@@ -14,7 +14,7 @@ import kodo
 
 def main():
     """
-    Encode pure recode decode example.
+    Pure recode example using the Payload API.
 
     This example is very similar to encode_recode_decode_simple.py.
     The only difference is that this example uses a pure recoder instead of
@@ -29,16 +29,18 @@ def main():
             |  encoder  |+---->| recoder   |+---->|  decoder   |
             +-----------+      +-----------+      +------------+
 
-    The pure recoder does not need to decode all symbols, so in a sense
-    the data block is "compressed" before recoding is performed.
-    This could be interesting in a P2P network where an intermidiate node
-    might not have enough storage to store all decoded content after it is
-    decoded and consumed locally.
+    The pure recoder does not need to decode all symbols, and its "capacity"
+    for storing symbols can be limited. These stored coded symbols are
+    linear combinations of previously received symbols. When a new symbol is
+    received, the pure recoder will combine it with its existing symbols
+    using random coefficients.
+    The pure recoder can produce a random linear combination of the stored
+    coded symbols, which can be processed by a regular decoder.
     """
     # Choose the finite field, the number of symbols (i.e. generation size)
     # and the symbol size in bytes
-    field = kodo.field.binary
-    symbols = 42
+    field = kodo.field.binary8
+    symbols = 5
     symbol_size = 160
 
     # Create an encoder/decoder factory that are used to build the
@@ -47,12 +49,8 @@ def main():
     encoder = encoder_factory.build()
 
     recoder_factory = kodo.RLNCPureRecoderFactory(field, symbols, symbol_size)
-    # Set the "capacity" for storing coded symbols in our recoder.
-    # In this example, we demonstrate that this can be less than "symbols".
-    # The stored coded symbols are combinations of previously received symbols.
-    # When a new symbol is received, the pure recoder will combine it with
-    # its existing symbols using random coefficients.
-    recoder_factory.set_recoder_symbols(20)
+    # Set the pure recoder "capacity" to be less than "symbols"
+    recoder_factory.set_recoder_symbols(3)
     recoder = recoder_factory.build()
 
     print("Recoder properties:\n"
@@ -79,6 +77,7 @@ def main():
 
         # Encode a packet into the payload buffer
         packet = encoder.write_payload()
+        print("Encoded packet generated and passed to the recoder")
 
         # Pass that packet to the recoder
         recoder.read_payload(packet)
@@ -86,10 +85,14 @@ def main():
         # Now produce a new recoded packet from the current decoding buffer
         recoded_packet = recoder.write_payload()
 
+        print("Recoded packet generated and passed to the decoder")
+
         # Pass the recoded packet to the decoder
         decoder.read_payload(recoded_packet)
 
-    # Check we properly decoded the data
+        print("Decoder rank: {}/{}\n".format(decoder.rank(), symbols))
+
+    # Check if we properly decoded the data
     if data_out == data_in:
         print("Data decoded correctly")
     else:

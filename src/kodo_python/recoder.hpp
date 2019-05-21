@@ -51,6 +51,41 @@ void recoder_read_symbol(
         (uint8_t*)PyByteArray_AsString(coefficients));
 }
 
+template<class Recoder>
+pybind11::tuple recoder_write_symbol(
+    Recoder& recoder, pybind11::handle handle)
+{
+    PyObject* recoding_coefficients = handle.ptr();
+
+    assert(PyByteArray_Check(recoding_coefficients) && "The recoding "
+           "coefficients buffer should be a Python bytearray object");
+
+    std::vector<uint8_t> symbol(recoder.symbol_size());
+    std::vector<uint8_t> coefficients(recoder.coefficient_vector_size());
+
+    recoder.recoder_write_symbol(
+        symbol.data(), coefficients.data(),
+        (uint8_t*)PyByteArray_AsString(recoding_coefficients));
+
+    pybind11::handle symbol_bytearray = PyByteArray_FromStringAndSize(
+        (char*)symbol.data(), symbol.size());
+
+    pybind11::handle coefficients_bytearray = PyByteArray_FromStringAndSize(
+        (char*)coefficients.data(), coefficients.size());
+
+    return pybind11::make_tuple(symbol_bytearray, coefficients_bytearray);
+}
+
+template<class Recoder>
+pybind11::handle recoder_generate(Recoder& recoder)
+{
+    std::vector<uint8_t> coefficients(recoder.coefficient_vector_size());
+    recoder.recoder_generate(coefficients.data());
+
+    return PyByteArray_FromStringAndSize(
+        (char*)coefficients.data(), coefficients.size());
+}
+
 template<class Coder>
 struct extra_recoder_methods
 {
@@ -84,6 +119,15 @@ void recoder(pybind11::module& m, const std::string& name)
              "coefficients.\n\n"
              "\t:param symbol_data: The encoded payload.\n"
              "\t:param coefficients: The coding coefficients.\n")
+        .def("recoder_generate", &recoder_generate<recoder_type>,
+             "Generate some coding coefficients suitable for recoding.\n\n"
+             "\t:returns: The bytearray containing the coding coefficients.\n")
+        .def("recoder_write_symbol", &recoder_write_symbol<recoder_type>,
+             arg("coefficients"),
+             "Generate a recoded symbol using the given coefficients.\n\n"
+             "\t:param coefficients: The coding coefficients.\n"
+             "\t:returns: A tuple of two bytearrays containing the recoded "
+             "symbol and the resulting symbol coefficients.\n")
         .def("write_payload", &recoder_write_payload<recoder_type>,
              "Generate an recoded payload.\n\n"
              "\t:returns: The bytearray containing the recoded payload.\n");

@@ -7,6 +7,7 @@
 # http://www.steinwurf.com/licensing
 
 import os
+import random
 import sys
 
 import kodo
@@ -55,6 +56,19 @@ def main():
     # We want to follow the decoding process step-by-step
     decoder.set_trace_callback(callback_function)
 
+    # In the first phase, we will transfer some systematic symbols from
+    # the encoder to the decoder.
+    # Randomly select 2 symbols from the 5 original symbols
+    for index in sorted(random.sample(xrange(symbols), 2)):
+        # Get the original symbol from the encoder
+        symbol = encoder.write_uncoded_symbol(index)
+        # Insert the symbol to the decoder using the raw symbol data,
+        # no additional headers or coefficients are needed for this
+        print("Adding Systematic Symbol {}:\n".format(index))
+        decoder.read_uncoded_symbol(symbol, index)
+
+    # In the second phase, we will generate coded symbols to fill in the gaps
+    # and complete the decoding process
     packet_number = 0
     while not decoder.is_complete():
         # Generate some random coefficients for encoding
@@ -67,14 +81,14 @@ def main():
         # Write a coded symbol to the symbol buffer
         symbol = encoder.write_symbol(coefficients)
 
-        print("Symbol {} encoded!\n".format(packet_number))
+        print("Coded Symbol {} encoded!\n".format(packet_number))
 
         # Pass that symbol and the corresponding coefficients to the decoder
-        print("Processing Symbol {}:\n".format(packet_number))
+        print("Processing Coded Symbol {}:\n".format(packet_number))
         decoder.read_symbol(symbol, coefficients)
 
         packet_number += 1
-        print("Rank: {}/{}\n".format(decoder.rank(), decoder.symbols()))
+        print("Decoder rank: {}/{}\n".format(decoder.rank(), symbols))
 
     print("Coding finished")
 
@@ -84,7 +98,7 @@ def main():
     if data_out == data_in:
         print("Data decoded correctly")
     else:
-        print("Unable to decode please file a bug report :)")
+        print("Unable to decode, please file a bug report :)")
         sys.exit(1)
 
 if __name__ == "__main__":

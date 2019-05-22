@@ -9,18 +9,18 @@ Latest
 * tbd
 * Minor: Added the following functions to provide access to the low-level
   Symbol API of the coder objects:
-  - encoder.generate()
-  - encoder.write_symbol()
-  - encoder.write_uncoded_symbol(index)
-  - decoder.read_symbol(symbol_data, coefficients)
-  - decoder.read_uncoded_symbol(symbol_data, index)
-  - recoder.recoder_generate()
-  - recoder.read_symbol(symbol_data, coefficients)
-  - recoder.recoder_write_symbol(coefficients)
+    - encoder.generate()
+    - encoder.write_symbol()
+    - encoder.write_uncoded_symbol(index)
+    - decoder.read_symbol(symbol_data, coefficients)
+    - decoder.read_uncoded_symbol(symbol_data, index)
+    - recoder.recoder_generate()
+    - recoder.read_symbol(symbol_data, coefficients)
+    - recoder.recoder_write_symbol(coefficients)
 * Minor: Created or extended the following examples:
-  - encode_decode_using_coefficients
-  - pure_recode_payload_api
-  - pure_recode_symbol_api
+    - encode_decode_using_coefficients
+    - pure_recode_payload_api
+    - pure_recode_symbol_api
 * Major: Use pybind11 instead of boost-python.
 
 13.1.1

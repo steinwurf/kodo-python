@@ -17,7 +17,8 @@ Latest
     - recoder.recoder_generate()
     - recoder.read_symbol(symbol_data, coefficients)
     - recoder.recoder_write_symbol(coefficients)
-* Minor: Created or extended the following examples:
+* Minor: Created or extended the following examples to cover the usage
+  of the Symbol API and compare it to the Payload API:
     - encode_decode_using_coefficients
     - pure_recode_payload_api
     - pure_recode_symbol_api

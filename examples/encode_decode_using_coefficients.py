@@ -59,7 +59,7 @@ def main():
     # In the first phase, we will transfer some systematic symbols from
     # the encoder to the decoder.
     # Randomly select 2 symbols from the 5 original symbols
-    for index in sorted(random.sample(xrange(symbols), 2)):
+    for index in sorted(random.sample(range(symbols), 2)):
         # Get the original symbol from the encoder
         symbol = encoder.write_uncoded_symbol(index)
         # Insert the symbol to the decoder using the raw symbol data,

@@ -9,7 +9,8 @@
 
 #include <kodo_fulcrum/coders.hpp>
 
-#include "create_helpers.hpp"
+#include "encoder.hpp"
+#include "decoder.hpp"
 #include "systematic_encoder_methods.hpp"
 
 namespace kodo_python
@@ -100,8 +101,8 @@ struct extra_factory_methods<kodo_fulcrum::decoder>
 
 void create_fulcrum_stacks(pybind11::module& m)
 {
-    create_factory_and_encoder<kodo_fulcrum::encoder>(m, "FulcrumEncoder");
-    create_factory_and_decoder<kodo_fulcrum::decoder>(m, "FulcrumDecoder");
+    encoder<kodo_fulcrum::encoder>(m, "FulcrumEncoder");
+    decoder<kodo_fulcrum::decoder>(m, "FulcrumDecoder");
 }
 }
 

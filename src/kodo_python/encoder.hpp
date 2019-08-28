@@ -70,10 +70,10 @@ pybind11::handle encoder_write_symbol(Encoder& encoder, pybind11::handle handle)
 
 
 template<class Encoder>
-pybind11::handle encoder_write_uncoded_symbol(Encoder& encoder, uint32_t index)
+pybind11::handle encoder_write_decoded_symbol(Encoder& encoder, uint32_t index)
 {
     std::vector<uint8_t> symbol(encoder.symbol_size());
-    uint32_t length = encoder.write_uncoded_symbol(symbol.data(), index);
+    uint32_t length = encoder.write_decoded_symbol(symbol.data(), index);
 
     return PyByteArray_FromStringAndSize((char*)symbol.data(), length);
 }
@@ -120,8 +120,8 @@ void encoder(pybind11::module& m, const std::string& name)
              "Generate an encoded symbol using the given coefficients.\n\n"
              "\t:param coefficients: The coding coefficients.\n"
              "\t:returns: The bytearray containing the encoded symbol.\n")
-        .def("write_uncoded_symbol",
-             &encoder_write_uncoded_symbol<encoder_type>,
+        .def("write_decoded_symbol",
+             &encoder_write_decoded_symbol<encoder_type>,
              arg("index"),
              "Return a systematic symbol for the given symbol index.\n\n"
              "\t:param index: The symbol index with the coding block.\n"

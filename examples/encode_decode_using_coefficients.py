@@ -61,11 +61,11 @@ def main():
     # Randomly select 2 symbols from the 5 original symbols
     for index in sorted(random.sample(range(symbols), 2)):
         # Get the original symbol from the encoder
-        symbol = encoder.write_uncoded_symbol(index)
+        symbol = encoder.write_decoded_symbol(index)
         # Insert the symbol to the decoder using the raw symbol data,
         # no additional headers or coefficients are needed for this
         print("Adding Systematic Symbol {}:\n".format(index))
-        decoder.read_uncoded_symbol(symbol, index)
+        decoder.read_decoded_symbol(symbol, index)
 
     # In the second phase, we will generate coded symbols to fill in the gaps
     # and complete the decoding process

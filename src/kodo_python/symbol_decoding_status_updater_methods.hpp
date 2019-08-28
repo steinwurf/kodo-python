@@ -19,7 +19,7 @@ static void symbol_decoding_status_updater_methods(DecoderClass& decoder_class)
          "Sets the status updater off.\n\n")
     .def("update_symbol_status",
          &DecoderClass::type::update_symbol_status,
-         "Updates the symbol status so that all uncoded symbols, "
+         "Updates the symbol status so that all decoded symbols, "
          "label partially complete.\n\n")
     .def("is_status_updater_enabled",
          &DecoderClass::type::is_status_updater_enabled,

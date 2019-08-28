@@ -224,7 +224,7 @@ class EncodeStateViewer(StateViewer):
         """Callback to be used with the encoder trace API."""
         assert self.__symbols is not None, "Symbols not set, use set_symbols"
 
-        if zone == "symbol_index_after_write_uncoded_symbol":
+        if zone == "symbol_index_after_write_decoded_symbol":
             index = int(message.split(' ')[-1])
             symbol = [0 for i in range(self.__symbols)]
             symbol[index] = 1

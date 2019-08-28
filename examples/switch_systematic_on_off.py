@@ -21,7 +21,7 @@ def main():
     coding stacks that support it.
     Systematic coding is used to reduce the amount of work done by an
     encoder and a decoder. This is achieved by initially sending all
-    symbols which has not previously been sent uncoded. Kodo allows this
+    symbols which has not previously been sent decoded. Kodo allows this
     feature to be optionally turn of or off.
     """
     # Choose the finite field, the number of symbols (i.e. generation size)
@@ -81,7 +81,7 @@ def main():
         # Symbols that were received in the systematic phase correspond
         # to the original source symbols and are therefore marked as
         # decoded
-        print("Symbols decoded {}".format(decoder.symbols_uncoded()))
+        print("Symbols decoded {}".format(decoder.symbols_decoded()))
 
     # The decoder is complete, the decoded symbols are now available in
     # the data_out buffer: check if it matches the data_in buffer

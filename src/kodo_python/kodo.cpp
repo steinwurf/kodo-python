@@ -7,7 +7,23 @@
 
 #include <string>
 
-#include <fifi/api/field.hpp>
+#include <fifi/finite_field.hpp>
+
+#include <cpuid/version.hpp>
+#include <fifi/version.hpp>
+#include <kodo_core/version.hpp>
+
+#if !defined(KODO_PYTHON_DISABLE_RLNC)
+    #include <kodo_rlnc/version.hpp>
+#endif
+
+#if !defined(KODO_PYTHON_DISABLE_PERPETUAL)
+    #include <kodo_perpetual/version.hpp>
+#endif
+
+#if !defined(KODO_PYTHON_DISABLE_FULCRUM)
+    #include <kodo_fulcrum/version.hpp>
+#endif
 
 namespace kodo_python
 {
@@ -19,11 +35,11 @@ void create_fulcrum_stacks(pybind11::module& m);
 
 void create_stacks(pybind11::module& m)
 {
-    pybind11::enum_<fifi::api::field>(m, "field")
-    .value("binary", fifi::api::field::binary)
-    .value("binary4", fifi::api::field::binary4)
-    .value("binary8", fifi::api::field::binary8)
-    .value("binary16", fifi::api::field::binary16);
+    pybind11::enum_<fifi::finite_field>(m, "field")
+    .value("binary", fifi::finite_field::binary)
+    .value("binary4", fifi::finite_field::binary4)
+    .value("binary8", fifi::finite_field::binary8)
+    .value("binary16", fifi::finite_field::binary16);
 
 #if !defined(KODO_PYTHON_DISABLE_NOCODE)
     create_carousel_stacks(m);
@@ -61,37 +77,37 @@ std::string version()
 
     version += std::string("\n\tcpuid: ");
 #ifdef STEINWURF_CPUID_VERSION
-    version += std::string(STEINWURF_CPUID_VERSION);
+    version += cpuid::version();
 #endif
 
     version += std::string("\n\tfifi: ");
 #ifdef STEINWURF_FIFI_VERSION
-    version += std::string(STEINWURF_FIFI_VERSION);
+    version += fifi::version();
 #endif
 
     version += std::string("\n\tkodo-core: ");
 #ifdef STEINWURF_KODO_CORE_VERSION
-    version += std::string(STEINWURF_KODO_CORE_VERSION);
+    version += kodo_core::version();
 #endif
 
 #if !defined(KODO_PYTHON_DISABLE_RLNC)
     version += std::string("\n\tkodo-rlnc: ");
 #ifdef STEINWURF_KODO_RLNC_VERSION
-    version += std::string(STEINWURF_KODO_RLNC_VERSION);
+    version += kodo_rlnc::version();
 #endif
 #endif
 
 #if !defined(KODO_PYTHON_DISABLE_PERPETUAL)
     version += std::string("\n\tkodo-perpetual: ");
 #ifdef STEINWURF_KODO_PERPETUAL_VERSION
-    version += std::string(STEINWURF_KODO_PERPETUAL_VERSION);
+    version += kodo_perpetual::version();
 #endif
 #endif
 
 #if !defined(KODO_PYTHON_DISABLE_FULCRUM)
     version += std::string("\n\tkodo-fulcrum: ");
 #ifdef STEINWURF_KODO_FULCRUM_VERSION
-    version += std::string(STEINWURF_KODO_FULCRUM_VERSION);
+    version += kodo_fulcrum::version();
 #endif
 #endif
 

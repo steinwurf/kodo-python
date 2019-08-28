@@ -10,7 +10,9 @@
 #include <kodo_core/nocode/carousel_decoder.hpp>
 #include <kodo_core/nocode/carousel_encoder.hpp>
 
-#include "create_helpers.hpp"
+#include "encoder.hpp"
+#include "decoder.hpp"
+
 
 namespace kodo_python
 {
@@ -18,8 +20,8 @@ void create_carousel_stacks(pybind11::module& m)
 {
     using namespace kodo_core::nocode;
 
-    create_factory_and_encoder<carousel_encoder>(m, "NoCodeEncoder");
-    create_factory_and_decoder<carousel_decoder>(m, "NoCodeDecoder");
+    encoder<carousel_encoder>(m, "NoCodeEncoder");
+    decoder<carousel_decoder>(m, "NoCodeDecoder");
 }
 }
 

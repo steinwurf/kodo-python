@@ -9,7 +9,9 @@
 
 #include <kodo_rlnc/coders.hpp>
 
-#include "create_helpers.hpp"
+#include "encoder.hpp"
+#include "decoder.hpp"
+#include "recoder.hpp"
 #include "symbol_decoding_status_updater_methods.hpp"
 #include "systematic_encoder_methods.hpp"
 
@@ -24,6 +26,11 @@ struct extra_encoder_methods<kodo_rlnc::encoder>
         using pybind11::arg;
 
         encoder_class
+        .def("set_coding_vector_format",
+             &EncoderClass::type::set_coding_vector_format,
+             arg("format"),
+             "Set the coding vector format for encoded payloads.\n\n"
+             "\t:param format: The selected coding vector format,\n")
         .def("set_seed",
              &EncoderClass::type::set_seed, arg("seed"),
              "Set the seed of the coefficient generator.\n\n"
@@ -68,43 +75,21 @@ struct extra_decoder_methods<kodo_rlnc::decoder>
     }
 };
 
+
 template<>
-struct extra_factory_methods<kodo_rlnc::encoder>
+struct extra_recoder_methods<kodo_rlnc::pure_recoder>
 {
-    template<class FactoryClass>
-    extra_factory_methods(FactoryClass& factory_class)
+    template<class RecoderClass>
+    extra_recoder_methods(RecoderClass& recoder_class)
     {
         using namespace pybind11;
 
-        factory_class
-        .def("set_coding_vector_format",
-             &FactoryClass::type::set_coding_vector_format,
-             arg("format"),
-             "Set the coding vector format for encoded payloads.\n\n"
-             "\t:param format: The selected coding vector format,\n");
-    }
-};
-
-template<>
-struct extra_factory_methods<kodo_rlnc::pure_recoder>
-{
-    template<class FactoryClass>
-    extra_factory_methods(FactoryClass& factory_class)
-    {
-        using namespace pybind11;
-
-        factory_class
+        recoder_class
         .def("recoder_symbols",
-             &FactoryClass::type::recoder_symbols,
+             &RecoderClass::type::recoder_symbols,
              "Return the the number of internal symbols that should be\n"
              "stored in the recoder.\n\n"
-             "\t:returns: The number of recoder symbols.\n")
-        .def("set_recoder_symbols",
-             &FactoryClass::type::set_recoder_symbols,
-             arg("symbols"),
-             "Set the number of recoder symbols for coders to be created\n"
-             "with this factory.\n\n"
-             "\t:param symbols: The number of recoder symbols to use.\n");
+             "\t:returns: The number of recoder symbols.\n");
     }
 };
 
@@ -117,9 +102,9 @@ void create_rlnc_stacks(pybind11::module& m)
     .value("seed", kodo_rlnc::coding_vector_format::seed)
     .value("sparse_seed", kodo_rlnc::coding_vector_format::sparse_seed);
 
-    create_factory_and_encoder<kodo_rlnc::encoder>(m, "RLNCEncoder");
-    create_factory_and_decoder<kodo_rlnc::decoder>(m, "RLNCDecoder");
-    create_factory_and_recoder<kodo_rlnc::pure_recoder>(m, "RLNCPureRecoder");
+    encoder<kodo_rlnc::encoder>(m, "RLNCEncoder");
+    decoder<kodo_rlnc::decoder>(m, "RLNCDecoder");
+    recoder<kodo_rlnc::pure_recoder>(m, "RLNCPureRecoder");
 }
 }
 

@@ -76,14 +76,14 @@ def main():
         print("Decoder received packet")
         print("Encoder rank = {}".format(encoder.rank()))
         print("Decoder rank = {}".format(decoder.rank()))
-        uncoded_symbol_indces = []
+        decoded_symbol_indces = []
         for i in range(decoder.symbols()):
-            if decoder.is_symbol_uncoded(i):
-                uncoded_symbol_indces.append(str(i))
+            if decoder.is_symbol_decoded(i):
+                decoded_symbol_indces.append(str(i))
 
-        print("Decoder uncoded = {} ({}) symbols".format(
-            decoder.symbols_uncoded(),
-            " ".join(uncoded_symbol_indces)))
+        print("Decoder decoded = {} ({}) symbols".format(
+            decoder.symbols_decoded(),
+            " ".join(decoded_symbol_indces)))
         print("Decoder partially decoded = {}".format(
             decoder.symbols_partially_decoded()))
 

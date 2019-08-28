@@ -65,8 +65,8 @@ def main():
         # Pass that packet to the decoder
         decoder1.read_payload(payload)
         decoder2.read_payload(payload_copy)
-        print("decoder 1: {}".format(decoder1.symbols_uncoded()))
-        print("decoder 2: {}".format(decoder2.symbols_uncoded()))
+        print("decoder 1: {}".format(decoder1.symbols_decoded()))
+        print("decoder 2: {}".format(decoder2.symbols_decoded()))
         print("-----------------")
 
     print("Processing finished")

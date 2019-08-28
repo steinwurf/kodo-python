@@ -9,7 +9,8 @@
 
 #include <kodo_perpetual/coders.hpp>
 
-#include "create_helpers.hpp"
+#include "encoder.hpp"
+#include "decoder.hpp"
 #include "symbol_decoding_status_updater_methods.hpp"
 #include "systematic_encoder_methods.hpp"
 
@@ -91,8 +92,8 @@ struct extra_decoder_methods<kodo_perpetual::decoder>
 
 void create_perpetual_stacks(pybind11::module& m)
 {
-    create_factory_and_encoder<kodo_perpetual::encoder>(m, "PerpetualEncoder");
-    create_factory_and_decoder<kodo_perpetual::decoder>(m, "PerpetualDecoder");
+    encoder<kodo_perpetual::encoder>(m, "PerpetualEncoder");
+    decoder<kodo_perpetual::decoder>(m, "PerpetualDecoder");
 }
 }
 

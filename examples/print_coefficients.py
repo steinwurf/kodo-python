@@ -67,8 +67,8 @@ def main():
             # Here we "simulate" a packet loss of approximately 50%
             # by dropping half of the encoded packets.
             # When running this example you will notice that the initial
-            # symbols are received systematically (i.e. uncoded). After
-            # sending all symbols once uncoded, the encoder will switch
+            # symbols are received systematically (i.e. decoded). After
+            # sending all symbols once decoded, the encoder will switch
             # to full coding, in which case you will see the full encoding
             # vectors being sent and received.
             if random.choice([True, False]):

@@ -84,14 +84,14 @@ void read_symbol(
 }
 
 template<class Decoder>
-void read_uncoded_symbol(
+void read_decoded_symbol(
     Decoder& decoder, pybind11::handle handle, uint32_t index)
 {
     PyObject* obj = handle.ptr();
     assert(PyByteArray_Check(obj) && "The symbol buffer should be a "
            "Python bytearray object");
 
-    decoder.read_uncoded_symbol((uint8_t*)PyByteArray_AsString(obj), index);
+    decoder.read_decoded_symbol((uint8_t*)PyByteArray_AsString(obj), index);
 }
 
 template<class Coder>
@@ -128,7 +128,7 @@ void decoder(pybind11::module& m, const std::string& name)
              "coefficients.\n\n"
              "\t:param symbol_data: The encoded payload.\n"
              "\t:param coefficients: The coding coefficients.\n")
-        .def("read_uncoded_symbol", &read_uncoded_symbol<decoder_type>,
+        .def("read_decoded_symbol", &read_decoded_symbol<decoder_type>,
              arg("symbol_data"), arg("index"),
              "Decode the provided systematic symbol.\n\n"
              "\t:param symbol_data: The systematic symbol.\n"
@@ -136,16 +136,16 @@ void decoder(pybind11::module& m, const std::string& name)
         .def("is_complete", &decoder_type::is_complete,
              "Check whether decoding is complete.\n\n"
              "\t:returns: True if the decoding is complete.\n")
-        .def("symbols_uncoded", &decoder_type::symbols_uncoded,
-             "Returns the number of uncoded symbols currently known.\n\n"
-             "Depending on the algorithm used the true number of uncoded\n"
+        .def("symbols_decoded", &decoder_type::symbols_decoded,
+             "Returns the number of decoded symbols currently known.\n\n"
+             "Depending on the algorithm used the true number of decoded\n"
              "symbols may be higher.\n"
              "The reason for this uncertainty is the some algorithms, for\n"
              "performance reasons, choose to not keep track of the exact\n"
              "status of the decoding matrix.\n"
-             "It is however guaranteed that at least this amount of uncoded\n"
+             "It is however guaranteed that at least this amount of decoded\n"
              "symbols exist.\n\n"
-             "\t:returns: The number of symbols which have been uncoded.\n")
+             "\t:returns: The number of symbols which have been decoded.\n")
         .def("symbols_missing", &decoder_type::symbols_missing,
              "Return the number of missing symbols at the decoder.\n\n"
              "\t:returns: The number of missing symbols.\n")
@@ -153,16 +153,16 @@ void decoder(pybind11::module& m, const std::string& name)
              &decoder_type::symbols_partially_decoded,
              "Return the number of partially decoded symbols at the decoder.\n\n"
              "\t:returns: The number of partially decoded symbols.\n")
-        .def("is_symbol_uncoded", &decoder_type::is_symbol_uncoded,
+        .def("is_symbol_decoded", &decoder_type::is_symbol_decoded,
              arg("index"),
-             "Check if the symbol at given index is uncoded.\n\n"
-             "This may return false for symbols that are actually uncoded,\n"
-             "but never true for symbols that are not uncoded.\n"
-             "As with the symbols_uncoded() function the reason for this is\n"
+             "Check if the symbol at given index is decoded.\n\n"
+             "This may return false for symbols that are actually decoded,\n"
+             "but never true for symbols that are not decoded.\n"
+             "As with the symbols_decoded() function the reason for this is\n"
              "that some algorithms do not, for performance reasons, keep track\n"
              "of the exact status of the decoding matrix.\n\n"
              "\t:param index: Index of the symbol to check.\n"
-             "\t:return: True if the symbol is uncoded, and otherwise false.\n")
+             "\t:return: True if the symbol is decoded, and otherwise false.\n")
         .def("is_symbol_missing", &decoder_type::is_symbol_missing,
              arg("index"),
              "Check if the symbol at given index is missing.\n\n"

@@ -7,6 +7,22 @@ every change, see the Git log.
 Latest
 ------
 * tbd
+* Major: The factories were removed from the top-level Encoder/Decoder
+  and PureRecoder classes. Therefore new coder instances can be
+  created using the normal constructor.
+* Major: The write_payload and write_symbol functions were renamed to
+  produce_payload and produce_symbol (including their variants).
+* Major: The read_payload and read_symbol functions were renamed to
+  consume_payload and consume_symbol (including their variants).
+* Major: The set_symbols_storage or set_symbol_storage function should be
+  used to specify memory buffers for the coder objects.
+* Major: The uncoded designation was renamed to decoded in all function names
+  to improve consistency in the API.
+* Major: The trace designation was changed to log in all function names.
+* Major: Upgrade to kodo-core 22
+* Major: Upgrade to kodo-rlnc 15
+* Major: Upgrade to kodo-fulcrum 13
+* Major: Upgrade to kodo-perpetual 4
 
 14.0.0
 ------

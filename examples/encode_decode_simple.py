@@ -20,33 +20,29 @@ def main():
     symbols = 8
     symbol_size = 160
 
-    # Create an encoder/decoder factory that are used to build the
-    # actual encoders/decoders
-    encoder_factory = kodo.RLNCEncoderFactory(field, symbols, symbol_size)
-    encoder = encoder_factory.build()
-
-    decoder_factory = kodo.RLNCDecoderFactory(field, symbols, symbol_size)
-    decoder = decoder_factory.build()
+    # Create an encoder and a decoder
+    encoder = kodo.RLNCEncoder(field, symbols, symbol_size)
+    decoder = kodo.RLNCDecoder(field, symbols, symbol_size)
 
     # Generate some random data to encode. We create a bytearray of the same
     # size as the encoder's block size and assign it to the encoder.
     # This bytearray must not go out of scope while the encoder exists!
     data_in = bytearray(os.urandom(encoder.block_size()))
-    encoder.set_const_symbols(data_in)
+    encoder.set_symbols_storage(data_in)
 
     # Define the data_out bytearray where the symbols should be decoded
     # This bytearray must not go out of scope while the encoder exists!
     data_out = bytearray(decoder.block_size())
-    decoder.set_mutable_symbols(data_out)
+    decoder.set_symbols_storage(data_out)
 
     packet_number = 0
     while not decoder.is_complete():
         # Generate an encoded packet
-        packet = encoder.write_payload()
+        packet = encoder.produce_payload()
         print("Packet {} encoded!".format(packet_number))
 
         # Pass that packet to the decoder
-        decoder.read_payload(packet)
+        decoder.consume_payload(packet)
         print("Packet {} decoded!".format(packet_number))
         packet_number += 1
         print("rank: {}/{}".format(decoder.rank(), decoder.symbols()))

@@ -54,8 +54,7 @@ def main():
     symbols = 64
     symbol_size = 1400
 
-    encoder_factory = kodo.RLNCEncoderFactory(field, symbols, symbol_size)
-    encoder = encoder_factory.build()
+    encoder = kodo.RLNCEncoder(field, symbols, symbol_size)
 
     sock = socket.socket(
         family=socket.AF_INET,
@@ -72,7 +71,7 @@ def main():
     f.close()
 
     # Assign the data_in buffer to the encoder
-    encoder.set_const_symbols(data_in)
+    encoder.set_symbols_storage(data_in)
 
     if args.dry_run:
         sys.exit(0)
@@ -83,7 +82,7 @@ def main():
     while True and not args.dry_run:
         time.sleep(0.2)
         # Generate an encoded packet
-        packet = encoder.write_payload()
+        packet = encoder.produce_payload()
         # Send the packet
         sock.sendto(packet, address)
         print("Packet sent!")

@@ -12,86 +12,49 @@
 #include <string>
 #include <vector>
 
-#include <storage/storage.hpp>
-
 #include "coder.hpp"
 
 namespace kodo_python
 {
 template<class Decoder>
-void set_mutable_symbols(Decoder& decoder, pybind11::handle handle)
+void decoder_set_symbols_storage(Decoder& decoder, pybind11::handle handle)
 {
     PyObject* obj = handle.ptr();
     assert(PyByteArray_Check(obj) && "The symbol storage should be a "
            "Python bytearray object");
 
-    auto symbol_storage = storage::mutable_storage(
-        (uint8_t*)PyByteArray_AsString(obj),
-        (uint32_t)PyByteArray_Size(obj));
-
-    decoder.set_mutable_symbols(symbol_storage);
+    decoder.set_symbols_storage((uint8_t*)PyByteArray_AsString(obj));
 }
 
 template<class Decoder>
-void set_mutable_symbol(
-    Decoder& decoder, uint32_t index, pybind11::handle handle)
+void decoder_set_symbol_storage(
+    Decoder& decoder, pybind11::handle handle, uint32_t index)
 {
     PyObject* obj = handle.ptr();
     assert(PyByteArray_Check(obj) && "The symbol storage should be a "
            "Python bytearray object");
 
-    auto symbol = storage::mutable_storage(
-        (uint8_t*)PyByteArray_AsString(obj),
-        (uint32_t)PyByteArray_Size(obj));
-
-    decoder.set_mutable_symbol(index, symbol);
+    decoder.set_symbol_storage((uint8_t*)PyByteArray_AsString(obj), index);
 }
 
 template<class Decoder>
-pybind11::handle decoder_write_payload(Decoder& decoder)
+pybind11::handle decoder_produce_payload(Decoder& decoder)
 {
-    std::vector<uint8_t> payload(decoder.payload_size());
-    auto length = decoder.write_payload(payload.data());
+    std::vector<uint8_t> payload(decoder.max_payload_size());
+    auto length = decoder.produce_payload(payload.data());
 
     return PyByteArray_FromStringAndSize((char*)payload.data(), length);
 }
 
 template<class Decoder>
-void read_payload(Decoder& decoder, pybind11::handle handle)
+void consume_payload(Decoder& decoder, pybind11::handle handle)
 
 {
     PyObject* obj = handle.ptr();
     assert(PyByteArray_Check(obj) && "The payload buffer should be a "
            "Python bytearray object");
 
-    decoder.read_payload((uint8_t*)PyByteArray_AsString(obj));
-}
-
-template<class Decoder>
-void read_symbol(
-    Decoder& decoder, pybind11::handle handle1, pybind11::handle handle2)
-{
-    PyObject* symbol_data = handle1.ptr();
-    PyObject* coefficients = handle2.ptr();
-    assert(PyByteArray_Check(symbol_data) && "The symbol buffer should be a "
-           "Python bytearray object");
-    assert(PyByteArray_Check(coefficients) && "The coefficients buffer should "
-           "be a Python bytearray object");
-
-    decoder.read_symbol(
-        (uint8_t*)PyByteArray_AsString(symbol_data),
-        (uint8_t*)PyByteArray_AsString(coefficients));
-}
-
-template<class Decoder>
-void read_decoded_symbol(
-    Decoder& decoder, pybind11::handle handle, uint32_t index)
-{
-    PyObject* obj = handle.ptr();
-    assert(PyByteArray_Check(obj) && "The symbol buffer should be a "
-           "Python bytearray object");
-
-    decoder.read_decoded_symbol((uint8_t*)PyByteArray_AsString(obj), index);
+    decoder.consume_payload((uint8_t*)PyByteArray_AsString(obj));
 }
 
 template<class Coder>
@@ -118,21 +81,10 @@ void decoder(pybind11::module& m, const std::string& name)
              "The rank of a decoder indicates how many symbols have been "
              "decoded or partially decoded.\n\n"
              "\t:returns: The rank.\n")
-        .def("read_payload", &read_payload<decoder_type>,
+        .def("consume_payload", &consume_payload<decoder_type>,
              arg("symbol_data"),
              "Decode the provided encoded payload.\n\n"
              "\t:param symbol_data: The encoded payload.\n")
-        .def("read_symbol", &read_symbol<decoder_type>,
-             arg("symbol_data"), arg("coefficients"),
-             "Decode the provided encoded symbol with the provided coding "
-             "coefficients.\n\n"
-             "\t:param symbol_data: The encoded payload.\n"
-             "\t:param coefficients: The coding coefficients.\n")
-        .def("read_decoded_symbol", &read_decoded_symbol<decoder_type>,
-             arg("symbol_data"), arg("index"),
-             "Decode the provided systematic symbol.\n\n"
-             "\t:param symbol_data: The systematic symbol.\n"
-             "\t:param index: The index of this systematic symbol.\n")
         .def("is_complete", &decoder_type::is_complete,
              "Check whether decoding is complete.\n\n"
              "\t:returns: True if the decoding is complete.\n")
@@ -181,15 +133,15 @@ void decoder(pybind11::module& m, const std::string& name)
              "the decoding matrix (it could be partially or fully decoded).\n\n"
              "\t:param index: The index of the symbol.\n"
              "\t:returns: True if the symbol is available.\n")
-        .def("set_mutable_symbols", &set_mutable_symbols<decoder_type>,
+        .def("set_symbols_storage", &decoder_set_symbols_storage<decoder_type>,
              arg("symbols"),
              "Set the buffer where the decoded symbols should be stored.\n\n"
              "\t:param symbols: The bytearray to store the symbols.\n")
-        .def("set_mutable_symbol", &set_mutable_symbol<decoder_type>,
-             arg("index"), arg("symbol"),
+        .def("set_symbol_storage", &decoder_set_symbol_storage<decoder_type>,
+             arg("symbol"), arg("index"),
              "Set the storage for a single symbol.\n\n"
-             "\t:param index: The index of the symbol in the coding block.\n"
-             "\t:param symbol: The bytearray to store the symbol.\n");
+             "\t:param symbol: The bytearray to store the symbol.\n"
+             "\t:param index: The index of the symbol in the coding block.\n");
 
     (extra_decoder_methods<Coder>(decoder_class));
 }

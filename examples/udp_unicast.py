@@ -163,15 +163,14 @@ def client(args):
 
 def send_data(settings, role):
     """Send data to the other node."""
-    # Setup kodo encoder_factory and encoder
-    encoder_factory = kodo.RLNCEncoderFactory(
+    # Setup kodo encoder
+    encoder = kodo.RLNCEncoder(
         field=kodo.field.binary,
         symbols=settings['symbols'],
         symbol_size=settings['symbol_size'])
 
-    encoder = encoder_factory.build()
     data_in = bytearray(os.urandom(encoder.block_size()))
-    encoder.set_const_symbols(data_in)
+    encoder.set_symbols_storage(data_in)
 
     send_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
@@ -194,7 +193,7 @@ def send_data(settings, role):
     start = time.clock()
     end = None
     while sent < settings['symbols'] * settings['max_redundancy'] / 100:
-        packet = encoder.write_payload()
+        packet = encoder.produce_payload()
         send(send_socket, packet, address)
         sent += 1
 
@@ -221,15 +220,14 @@ def send_data(settings, role):
 
 def receive_data(settings, role):
     """Receive data from the other node."""
-    # Setup kodo encoder_factory and decoder
-    decoder_factory = kodo.RLNCDecoderFactory(
+    # Setup kodo decoder
+    decoder = kodo.RLNCDecoder(
         field = kodo.field.binary,
         symbols=settings['symbols'],
         symbol_size=settings['symbol_size'])
 
-    decoder = decoder_factory.build()
     data_out = bytearray(decoder.block_size())
-    decoder.set_mutable_symbols(data_out)
+    decoder.set_symbols_storage(data_out)
 
     send_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
@@ -254,7 +252,7 @@ def receive_data(settings, role):
             packet = data_socket.recv(settings['symbol_size'] + 100)
 
             if not decoder.is_complete():
-                decoder.read_payload(bytearray(packet))
+                decoder.consume_payload(bytearray(packet))
                 received += 1
 
             if decoder.is_complete():

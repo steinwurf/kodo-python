@@ -53,11 +53,10 @@ def main():
     symbols = 64
     symbol_size = 1400
 
-    decoder_factory = kodo.RLNCDecoderFactory(field, symbols, symbol_size)
-    decoder = decoder_factory.build()
+    decoder = kodo.RLNCDecoder(field, symbols, symbol_size)
 
     data_out = bytearray(decoder.block_size())
-    decoder.set_mutable_symbols(data_out)
+    decoder.set_symbols_storage(data_out)
 
     sock = socket.socket(
         family=socket.AF_INET,
@@ -79,7 +78,7 @@ def main():
         time.sleep(0.2)
         packet = sock.recv(10240)
 
-        decoder.read_payload(bytearray(packet))
+        decoder.consume_payload(bytearray(packet))
         print("Packet received!")
         print("Decoder rank: {}/{}".format(decoder.rank(), decoder.symbols()))
 

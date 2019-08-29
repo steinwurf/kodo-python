@@ -21,44 +21,40 @@ def main():
     symbols = 5
     symbol_size = 16
 
-    # Create an encoder/decoder factory that are used to build the
-    # actual encoders/decoders
-    encoder_factory = kodo.RLNCEncoderFactory(field, symbols, symbol_size)
-    encoder = encoder_factory.build()
-
-    decoder_factory = kodo.RLNCDecoderFactory(field, symbols, symbol_size)
-    decoder = decoder_factory.build()
+    # Create an encoder and a decoder
+    encoder = kodo.RLNCEncoder(field, symbols, symbol_size)
+    decoder = kodo.RLNCDecoder(field, symbols, symbol_size)
 
     # Generate some random data to encode. We create a bytearray of the same
     # size as the encoder's block size and assign it to the encoder.
     # This bytearray must not go out of scope while the encoder exists!
     data_in = bytearray(os.urandom(encoder.block_size()))
-    encoder.set_const_symbols(data_in)
+    encoder.set_symbols_storage(data_in)
 
     # Define the data_out bytearray where the symbols should be decoded
     # This bytearray must not go out of scope while the encoder exists!
     data_out = bytearray(decoder.block_size())
-    decoder.set_mutable_symbols(data_out)
+    decoder.set_symbols_storage(data_out)
 
     # Setup tracing
 
     # Enable the stdout trace function of the encoder
-    encoder.set_trace_stdout()
+    encoder.set_log_stdout()
     encoder.set_zone_prefix("encoder")
 
     # Define a custom trace function for the decoder which filters the
     # trace message based on their zones
     def callback_function(zone, message):
-        if zone in ["decoder_state", "symbol_coefficients_before_read_symbol"]:
+        if zone in ["decoder_state", "symbol_coefficients_before_consume_symbol"]:
             print("{}:".format(zone))
             print(message)
 
-    decoder.set_trace_callback(callback_function)
+    decoder.set_log_callback(callback_function)
 
     while not decoder.is_complete():
 
         # Encode a packet into the payload buffer
-        packet = encoder.write_payload()
+        packet = encoder.produce_payload()
 
         # Here we "simulate" a packet loss of approximately 50%
         # by dropping half of the encoded packets.
@@ -72,7 +68,7 @@ def main():
             continue
 
         # Pass that packet to the decoder
-        decoder.read_payload(packet)
+        decoder.consume_payload(packet)
 
     # The decoder is complete, the decoded symbols are now available in
     # the data_out buffer: check if it matches the data_in buffer

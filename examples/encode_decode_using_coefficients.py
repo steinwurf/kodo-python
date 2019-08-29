@@ -28,44 +28,40 @@ def main():
     symbols = 5
     symbol_size = 160
 
-    # Create an encoder/decoder factory that are used to build the
-    # actual encoders/decoders
-    encoder_factory = kodo.RLNCEncoderFactory(field, symbols, symbol_size)
-    encoder = encoder_factory.build()
-
-    decoder_factory = kodo.RLNCDecoderFactory(field, symbols, symbol_size)
-    decoder = decoder_factory.build()
+    # Create an encoder and a decoder
+    encoder = kodo.RLNCEncoder(field, symbols, symbol_size)
+    decoder = kodo.RLNCDecoder(field, symbols, symbol_size)
 
     # Generate some random data to encode. We create a bytearray of the same
     # size as the encoder's block size and assign it to the encoder.
     # This bytearray must not go out of scope while the encoder exists!
     data_in = bytearray(os.urandom(encoder.block_size()))
-    encoder.set_const_symbols(data_in)
+    encoder.set_symbols_storage(data_in)
 
     # Define the data_out bytearray where the symbols should be decoded
     # This bytearray must not go out of scope while the encoder exists!
     data_out = bytearray(decoder.block_size())
-    decoder.set_mutable_symbols(data_out)
+    decoder.set_symbols_storage(data_out)
 
     # Define a custom trace function for the decoder which filters the
     # trace message based on their zones
     def callback_function(zone, message):
-        if zone in ["decoder_state", "symbol_coefficients_before_read_symbol"]:
+        if zone in ["decoder_state", "symbol_coefficients_before_consume_symbol"]:
             print("{}:".format(zone))
             print(message)
     # We want to follow the decoding process step-by-step
-    decoder.set_trace_callback(callback_function)
+    decoder.set_log_callback(callback_function)
 
     # In the first phase, we will transfer some systematic symbols from
     # the encoder to the decoder.
     # Randomly select 2 symbols from the 5 original symbols
     for index in sorted(random.sample(range(symbols), 2)):
         # Get the original symbol from the encoder
-        symbol = encoder.write_decoded_symbol(index)
+        symbol = encoder.produce_systematic_symbol(index)
         # Insert the symbol to the decoder using the raw symbol data,
         # no additional headers or coefficients are needed for this
         print("Adding Systematic Symbol {}:\n".format(index))
-        decoder.read_decoded_symbol(symbol, index)
+        decoder.consume_systematic_symbol(symbol, index)
 
     # In the second phase, we will generate coded symbols to fill in the gaps
     # and complete the decoding process
@@ -79,13 +75,13 @@ def main():
         print("Coding coefficients:")
         print(" ".join(str(c) for c in coefficients))
         # Write a coded symbol to the symbol buffer
-        symbol = encoder.write_symbol(coefficients)
+        symbol = encoder.produce_symbol(coefficients)
 
         print("Coded Symbol {} encoded!\n".format(packet_number))
 
         # Pass that symbol and the corresponding coefficients to the decoder
         print("Processing Coded Symbol {}:\n".format(packet_number))
-        decoder.read_symbol(symbol, coefficients)
+        decoder.consume_symbol(symbol, coefficients)
 
         packet_number += 1
         print("Decoder rank: {}/{}\n".format(decoder.rank(), symbols))

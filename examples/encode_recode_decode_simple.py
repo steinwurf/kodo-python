@@ -19,7 +19,7 @@ def main():
     In Network Coding applications, one of the key features is the
     ability of intermediate nodes in the network to recode packets
     as they traverse them. In Kodo it is possible to recode packets
-    in decoders which provide the write_payload() function.
+    in decoders which provide the produce_payload() function.
 
     This example shows how to use one encoder and two decoders to
     simulate a simple relay network as shown below (for simplicity
@@ -44,42 +44,38 @@ def main():
     symbols = 42
     symbol_size = 160
 
-    # Create an encoder/decoder factory that are used to build the
-    # actual encoders/decoders
-    encoder_factory = kodo.RLNCEncoderFactory(field, symbols, symbol_size)
-    encoder = encoder_factory.build()
-
-    decoder_factory = kodo.RLNCDecoderFactory(field, symbols, symbol_size)
-    decoder1 = decoder_factory.build()
-    decoder2 = decoder_factory.build()
+    # Create an encoder and two decoders
+    encoder = kodo.RLNCEncoder(field, symbols, symbol_size)
+    decoder1 = kodo.RLNCDecoder(field, symbols, symbol_size)
+    decoder2 = kodo.RLNCDecoder(field, symbols, symbol_size)
 
     # Generate some random data to encode. We create a bytearray of the same
     # size as the encoder's block size and assign it to the encoder.
     # This bytearray must not go out of scope while the encoder exists!
     data_in = bytearray(os.urandom(encoder.block_size()))
-    encoder.set_const_symbols(data_in)
+    encoder.set_symbols_storage(data_in)
 
     # Define the data_out bytearrays where the symbols should be decoded
     # These bytearrays must not go out of scope while the encoder exists!
     data_out1 = bytearray(decoder1.block_size())
     data_out2 = bytearray(decoder1.block_size())
-    decoder1.set_mutable_symbols(data_out1)
-    decoder2.set_mutable_symbols(data_out2)
+    decoder1.set_symbols_storage(data_out1)
+    decoder2.set_symbols_storage(data_out2)
 
     while not decoder2.is_complete():
 
         # Encode a packet into the payload buffer
-        packet = encoder.write_payload()
+        packet = encoder.produce_payload()
 
         # Pass that packet to decoder1
-        decoder1.read_payload(packet)
+        decoder1.consume_payload(packet)
 
         # Now produce a new recoded packet from the current
         # decoding buffer, and place it into the payload buffer
-        packet = decoder1.write_payload()
+        packet = decoder1.produce_payload()
 
         # Pass the recoded packet to decoder2
-        decoder2.read_payload(packet)
+        decoder2.consume_payload(packet)
 
     # Both decoder1 and decoder2 should now be complete,
     # check if the output buffers match the data_in buffer

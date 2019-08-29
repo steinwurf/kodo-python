@@ -42,15 +42,10 @@ def main():
     symbols = 5
     symbol_size = 160
 
-    # Create an encoder/decoder factory that are used to build the
-    # actual encoders/decoders
-    encoder_factory = kodo.RLNCEncoderFactory(field, symbols, symbol_size)
-    encoder = encoder_factory.build()
+    encoder = kodo.RLNCEncoder(field, symbols, symbol_size)
 
-    recoder_factory = kodo.RLNCPureRecoderFactory(field, symbols, symbol_size)
     # Set the pure recoder "capacity" to be less than "symbols"
-    recoder_factory.set_recoder_symbols(3)
-    recoder = recoder_factory.build()
+    recoder = kodo.RLNCPureRecoder(field, symbols, symbol_size, 3)
 
     print("Recoder properties:\n"
           "  Symbols: {}\n"
@@ -58,19 +53,18 @@ def main():
             recoder.symbols(),
             recoder.recoder_symbols()))
 
-    decoder_factory = kodo.RLNCDecoderFactory(field, symbols, symbol_size)
-    decoder = decoder_factory.build()
+    decoder = kodo.RLNCDecoder(field, symbols, symbol_size)
 
     # Generate some random data to encode. We create a bytearray of the same
     # size as the encoder's block size and assign it to the encoder.
     # This bytearray must not go out of scope while the encoder exists!
     data_in = bytearray(os.urandom(encoder.block_size()))
-    encoder.set_const_symbols(data_in)
+    encoder.set_symbols_storage(data_in)
 
     # Define the data_out bytearrays where the symbols should be decoded
     # These bytearrays must not go out of scope while the encoder exists!
     data_out = bytearray(decoder.block_size())
-    decoder.set_mutable_symbols(data_out)
+    decoder.set_symbols_storage(data_out)
 
     while not decoder.is_complete():
         # Generate some random coefficients for encoding
@@ -81,11 +75,11 @@ def main():
         print("Encoding coefficients:")
         print(" ".join(str(c) for c in coefficients))
         # Write a coded symbol to the symbol buffer
-        symbol = encoder.write_symbol(coefficients)
+        symbol = encoder.produce_symbol(coefficients)
 
         print("Encoded symbol generated and passed to the recoder")
         # Pass that symbol and the corresponding coefficients to the recoder
-        recoder.read_symbol(symbol, coefficients)
+        recoder.consume_symbol(symbol, coefficients)
 
         # Generate some random coefficients for recoding
         recoding_coefficients = recoder.recoder_generate()
@@ -97,7 +91,7 @@ def main():
         # Note that the resulting recoded_symbol_coefficients will not be
         # the same as the recoding_coefficients
         recoded_symbol, recoded_symbol_coefficients = \
-            recoder.recoder_write_symbol(recoding_coefficients)
+            recoder.recoder_produce_symbol(recoding_coefficients)
 
         print("Recoded symbol coefficients:")
         print(" ".join(str(c) for c in recoded_symbol_coefficients))
@@ -105,7 +99,7 @@ def main():
         print("Recoded symbol generated and passed to the decoder")
 
         # Pass that symbol and the corresponding coefficients to the decoder
-        decoder.read_symbol(recoded_symbol, recoded_symbol_coefficients)
+        decoder.consume_symbol(recoded_symbol, recoded_symbol_coefficients)
 
         print("Decoder rank: {}/{}\n".format(decoder.rank(), symbols))
 

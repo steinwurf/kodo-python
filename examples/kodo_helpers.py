@@ -178,7 +178,7 @@ class DecodeStateViewer(StateViewer):
         super(DecodeStateViewer, self).__init__(
             size, canvas, canvas_position)
 
-    def trace_callback(self, zone, message):
+    def log_callback(self, zone, message):
         """Callback to be used with the decoder trace API."""
         # We are only interested in the decoder state.
         if zone != "decoder_state":
@@ -212,7 +212,7 @@ class EncodeStateViewer(StateViewer):
         """
         Set the number of symbols.
 
-        The number of symbols must be set before using the trace_callback.
+        The number of symbols must be set before using the log_callback.
 
         :param symbols: the number of symbols.
         """
@@ -220,16 +220,16 @@ class EncodeStateViewer(StateViewer):
         self.state = [[] for i in range(self.__symbols)]
         self.index = 0
 
-    def trace_callback(self, zone, message):
+    def log_callback(self, zone, message):
         """Callback to be used with the encoder trace API."""
         assert self.__symbols is not None, "Symbols not set, use set_symbols"
 
-        if zone == "symbol_index_after_write_decoded_symbol":
+        if zone == "symbol_index_after_produce_systematic_symbol":
             index = int(message.split(' ')[-1])
             symbol = [0 for i in range(self.__symbols)]
             symbol[index] = 1
 
-        elif zone == "symbol_coefficients_after_write_symbol":
+        elif zone == "symbol_coefficients_after_produce_symbol":
             symbol = message[3:].split(' ')[:-1]
             symbol = map(int, symbol)
         else:

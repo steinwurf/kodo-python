@@ -18,7 +18,7 @@ def main():
     This Example shows how to use the additional settings and parameters
     supported by the perpetual code.
     """
-    if not hasattr(kodo, 'PerpetualEncoderFactory'):
+    if not hasattr(kodo, 'PerpetualEncoder'):
         print("The perpetual codec is not available")
         return
 
@@ -28,12 +28,10 @@ def main():
     symbols = 40
     symbol_size = 160
 
-    # Create encoder/decoder factory used to build actual encoders/decoders
-    encoder_factory = kodo.PerpetualEncoderFactory(field, symbols, symbol_size)
-    encoder = encoder_factory.build()
+    # Create an encoder and a decoder
+    encoder = kodo.PerpetualEncoder(field, symbols, symbol_size)
+    decoder = kodo.PerpetualDecoder(field, symbols, symbol_size)
 
-    decoder_factory = kodo.PerpetualDecoderFactory(field, symbols, symbol_size)
-    decoder = decoder_factory.build()
 
     # The perpetual encoder supports three operation modes;
     #
@@ -121,19 +119,19 @@ def main():
     # size as the encoder's block size and assign it to the encoder.
     # This bytearray must not go out of scope while the encoder exists!
     data_in = bytearray(os.urandom(encoder.block_size()))
-    encoder.set_const_symbols(data_in)
+    encoder.set_symbols_storage(data_in)
 
     # Define the data_out bytearray where the symbols should be decoded
     # This bytearray must not go out of scope while the encoder exists!
     data_out = bytearray(decoder.block_size())
-    decoder.set_mutable_symbols(data_out)
+    decoder.set_symbols_storage(data_out)
 
     while not decoder.is_complete():
         # Encode a packet into the payload buffer
-        payload = encoder.write_payload()
+        payload = encoder.produce_payload()
 
         # Pass that packet to the decoder
-        decoder.read_payload(payload)
+        decoder.consume_payload(payload)
 
     # The decoder is complete, the decoded symbols are now available in
     # the data_out buffer: check if it matches the data_in buffer

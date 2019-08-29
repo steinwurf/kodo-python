@@ -19,9 +19,9 @@ using log_callback =
     std::function<void(const std::string& zone, const std::string& data)>;
 
 template<class Coder>
-void set_trace_callback(Coder& coder, const log_callback& callback)
+void set_log_callback(Coder& coder, const log_callback& callback)
 {
-    coder.set_trace_callback(callback);
+    coder.set_log_callback(callback);
 }
 
 template<class Coder>
@@ -43,7 +43,7 @@ pybind11::class_<Coder> coder(pybind11::module& m, const std::string& name)
              "\t:param symbol_size: The size of a symbol in bytes.\n")
         .def("reset", &coder_type::reset,
              "Reset the coder to a clean state.\n")
-        .def("payload_size", &coder_type::payload_size,
+        .def("max_payload_size", &coder_type::max_payload_size,
              "Return the required payload buffer size in bytes.\n\n"
              "\t:returns: The required payload buffer size in bytes.\n")
         .def("block_size", &coder_type::block_size,
@@ -56,14 +56,14 @@ pybind11::class_<Coder> coder(pybind11::module& m, const std::string& name)
         .def("symbols", &coder_type::symbols,
              "Return the number of symbols in this block coder.\n\n"
              "\t:returns: The number of symbols in this block coder.\n")
-        .def("set_trace_callback", &set_trace_callback<coder_type>,
+        .def("set_log_callback", &set_log_callback<coder_type>,
              arg("callback"),
-             "Write the trace information to a callback.\n\n"
+             "Write the log information to a callback.\n\n"
              "\t:param callback: The callback which is called with the zone "
              "and message.")
-        .def("set_trace_stdout", &coder_type::set_trace_stdout,
-             "Trace debug info to stdout.\n")
-        .def("set_trace_off", &coder_type::set_trace_off,
+        .def("set_log_stdout", &coder_type::set_log_stdout,
+             "Log debug info to stdout.\n")
+        .def("set_log_off", &coder_type::set_log_off,
              "Disable tracing.\n")
         .def("set_zone_prefix", &coder_type::set_zone_prefix,
              arg("zone_prefix"),

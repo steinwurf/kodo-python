@@ -43,15 +43,10 @@ def main():
     symbols = 5
     symbol_size = 160
 
-    # Create an encoder/decoder factory that are used to build the
-    # actual encoders/decoders
-    encoder_factory = kodo.RLNCEncoderFactory(field, symbols, symbol_size)
-    encoder = encoder_factory.build()
+    encoder = kodo.RLNCEncoder(field, symbols, symbol_size)
 
-    recoder_factory = kodo.RLNCPureRecoderFactory(field, symbols, symbol_size)
     # Set the pure recoder "capacity" to be less than "symbols"
-    recoder_factory.set_recoder_symbols(3)
-    recoder = recoder_factory.build()
+    recoder = kodo.RLNCPureRecoder(field, symbols, symbol_size, 3)
 
     print("Recoder properties:\n"
           "  Symbols: {}\n"
@@ -59,36 +54,35 @@ def main():
             recoder.symbols(),
             recoder.recoder_symbols()))
 
-    decoder_factory = kodo.RLNCDecoderFactory(field, symbols, symbol_size)
-    decoder = decoder_factory.build()
+    decoder = kodo.RLNCDecoder(field, symbols, symbol_size)
 
     # Generate some random data to encode. We create a bytearray of the same
     # size as the encoder's block size and assign it to the encoder.
     # This bytearray must not go out of scope while the encoder exists!
     data_in = bytearray(os.urandom(encoder.block_size()))
-    encoder.set_const_symbols(data_in)
+    encoder.set_symbols_storage(data_in)
 
     # Define the data_out bytearrays where the symbols should be decoded
     # These bytearrays must not go out of scope while the encoder exists!
     data_out = bytearray(decoder.block_size())
-    decoder.set_mutable_symbols(data_out)
+    decoder.set_symbols_storage(data_out)
 
     while not decoder.is_complete():
 
         # Encode a packet into the payload buffer
-        packet = encoder.write_payload()
+        packet = encoder.produce_payload()
         print("Encoded packet generated and passed to the recoder")
 
         # Pass that packet to the recoder
-        recoder.read_payload(packet)
+        recoder.consume_payload(packet)
 
         # Now produce a new recoded packet from the current decoding buffer
-        recoded_packet = recoder.write_payload()
+        recoded_packet = recoder.produce_payload()
 
         print("Recoded packet generated and passed to the decoder")
 
         # Pass the recoded packet to the decoder
-        decoder.read_payload(recoded_packet)
+        decoder.consume_payload(recoded_packet)
 
         print("Decoder rank: {}/{}\n".format(decoder.rank(), symbols))
 

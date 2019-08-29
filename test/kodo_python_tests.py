@@ -16,31 +16,31 @@ import kodo
 test_sets = []
 
 # Carousel
-if hasattr(kodo, 'NoCodeEncoderFactory'):
+if hasattr(kodo, 'NoCodeEncoder'):
     test_sets.append(([kodo.field.binary],
-                      kodo.NoCodeEncoderFactory,
-                      kodo.NoCodeDecoderFactory))
+                      kodo.NoCodeEncoder,
+                      kodo.NoCodeDecoder))
 
 # RLNC
-if hasattr(kodo, 'RLNCEncoderFactory'):
+if hasattr(kodo, 'RLNCEncoder'):
     test_sets.append(([kodo.field.binary, kodo.field.binary4,
                       kodo.field.binary8, kodo.field.binary16],
-                      kodo.RLNCEncoderFactory,
-                      kodo.RLNCDecoderFactory))
+                      kodo.RLNCEncoder,
+                      kodo.RLNCDecoder))
 
 # Perpetual
-if hasattr(kodo, 'PerpetualEncoderFactory'):
+if hasattr(kodo, 'PerpetualEncoder'):
     test_sets.append(([kodo.field.binary, kodo.field.binary4,
                       kodo.field.binary8, kodo.field.binary16],
-                      kodo.PerpetualEncoderFactory,
-                      kodo.PerpetualDecoderFactory))
+                      kodo.PerpetualEncoder,
+                      kodo.PerpetualDecoder))
 
 # Fulcrum
-if hasattr(kodo, 'FulcrumEncoderFactory'):
+if hasattr(kodo, 'FulcrumEncoder'):
     test_sets.append(([kodo.field.binary4, kodo.field.binary8,
                       kodo.field.binary16],
-                      kodo.FulcrumEncoderFactory,
-                      kodo.FulcrumDecoderFactory))
+                      kodo.FulcrumEncoder,
+                      kodo.FulcrumDecoder))
 
 
 class TestVersion(unittest.TestCase):
@@ -61,22 +61,19 @@ class TestEncodeDecode(unittest.TestCase):
             for field in test_set[0]:
                 self.encode_decode_simple(field, test_set[1], test_set[2])
 
-    def encode_decode_simple(self, field, EncoderFactory, DecoderFactory):
+    def encode_decode_simple(self, field, Encoder, Decoder):
 
         symbols = 8
         symbol_size = 160
 
-        encoder_factory = EncoderFactory(field, symbols, symbol_size)
-        encoder = encoder_factory.build()
-
-        decoder_factory = DecoderFactory(field, symbols, symbol_size)
-        decoder = decoder_factory.build()
+        encoder = Encoder(field, symbols, symbol_size)
+        decoder = Decoder(field, symbols, symbol_size)
 
         data_in = bytearray(os.urandom(encoder.block_size()))
-        encoder.set_const_symbols(data_in)
+        encoder.set_symbols_storage(data_in)
 
         data_out = bytearray(decoder.block_size())
-        decoder.set_mutable_symbols(data_out)
+        decoder.set_symbols_storage(data_out)
 
         # Turn off systematic mode to test with coded symbols from the start
         if 'set_systematic_off' in dir(encoder):
@@ -84,9 +81,9 @@ class TestEncodeDecode(unittest.TestCase):
 
         while not decoder.is_complete():
             # Generate an encoded packet
-            packet = encoder.write_payload()
+            packet = encoder.produce_payload()
             # Decode the encoded packet
-            decoder.read_payload(packet)
+            decoder.consume_payload(packet)
 
         # Check if we properly decoded the data
         self.assertEqual(data_out, data_in)

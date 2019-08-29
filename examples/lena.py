@@ -81,34 +81,31 @@ def main():
 
     field = kodo.field.binary8
 
-    encoder_factory = kodo.RLNCEncoderFactory(field, symbols, symbol_size)
-    encoder = encoder_factory.build()
-
-    decoder_factory = kodo.RLNCDecoderFactory(field, symbols, symbol_size)
-    decoder = decoder_factory.build()
+    encoder = kodo.RLNCEncoder(field, symbols, symbol_size)
+    decoder = kodo.RLNCDecoder(field, symbols, symbol_size)
 
     # Connect the tracing callback to the decode state viewer
     def encoding_callback(zone, msg):
-        encoding_state_viewer.trace_callback(zone, msg)
+        encoding_state_viewer.log_callback(zone, msg)
     encoding_state_viewer.set_symbols(encoder.symbols())
-    encoder.set_trace_callback(encoding_callback)
+    encoder.set_log_callback(encoding_callback)
 
     def decoding_callback(zone, msg):
-        decoding_state_viewer.trace_callback(zone, msg)
+        decoding_state_viewer.log_callback(zone, msg)
 
-    decoder.set_trace_callback(decoding_callback)
+    decoder.set_log_callback(decoding_callback)
 
     # Create a bytearray from the image to use in the encoding (only pick the
     # data we have room for).
     data_in = bytearray(image.tobytes()[-encoder.block_size():])
 
     # Set the converted image data
-    encoder.set_const_symbols(data_in)
+    encoder.set_symbols_storage(data_in)
 
     # Define the data_out bytearray where the symbols should be decoded
     # This bytearray must not go out of scope while the encoder exists!
     data_out = bytearray(decoder.block_size())
-    decoder.set_mutable_symbols(data_out)
+    decoder.set_symbols_storage(data_out)
 
     # Create an image viwer and run the following code in a try catch;
     # this prevents the program from locking up, as the finally clause will
@@ -116,11 +113,11 @@ def main():
     canvas.start()
     try:
         while not decoder.is_complete():
-            packet = encoder.write_payload()
+            packet = encoder.produce_payload()
 
             # Drop some packets
             if random.choice([True, False]):
-                decoder.read_payload(packet)
+                decoder.consume_payload(packet)
 
             # The data_out buffer is continuously updated
             image_viewer.set_image(data_out)

@@ -39,30 +39,27 @@ def main():
         symbols = 64
         symbol_size = 16
 
-        encoder_factory = kodo.RLNCEncoderFactory(field, symbols, symbol_size)
-        encoder = encoder_factory.build()
-
-        decoder_factory = kodo.RLNCDecoderFactory(field, symbols, symbol_size)
-        decoder = decoder_factory.build()
+        encoder = kodo.RLNCEncoder(field, symbols, symbol_size)
+        decoder = kodo.RLNCDecoder(field, symbols, symbol_size)
 
         data_in = bytearray(os.urandom(encoder.block_size()))
-        encoder.set_const_symbols(data_in)
+        encoder.set_symbols_storage(data_in)
 
         data_out = bytearray(decoder.block_size())
-        decoder.set_mutable_symbols(data_out)
+        decoder.set_symbols_storage(data_out)
 
         def decoder_callback(zone, msg):
-            decoder_viewer.trace_callback(zone, msg)
-        decoder.set_trace_callback(decoder_callback)
+            decoder_viewer.log_callback(zone, msg)
+        decoder.set_log_callback(decoder_callback)
 
         def encoder_callback(zone, msg):
-            encoder_viewer.trace_callback(zone, msg)
+            encoder_viewer.log_callback(zone, msg)
         encoder_viewer.set_symbols(encoder.symbols())
-        encoder.set_trace_callback(encoder_callback)
+        encoder.set_log_callback(encoder_callback)
 
         while not decoder.is_complete():
             # Encode a packet into the payload buffer
-            packet = encoder.write_payload()
+            packet = encoder.produce_payload()
 
             # Here we "simulate" a packet loss of approximately 50%
             # by dropping half of the encoded packets.
@@ -75,7 +72,7 @@ def main():
                 continue
 
             # Pass that packet to the decoder
-            decoder.read_payload(packet)
+            decoder.consume_payload(packet)
 
         time.sleep(1)
     finally:

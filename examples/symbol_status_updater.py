@@ -21,16 +21,13 @@ def main():
     symbols = 50
     symbol_size = 160
 
-    # Create an encoder/decoder factory that are used to build the
-    # actual encoders/decoders
-    encoder_factory = kodo.RLNCEncoderFactory(field, symbols, symbol_size)
-    encoder = encoder_factory.build()
+    # Create an encoder
+    encoder = kodo.RLNCEncoder(field, symbols, symbol_size)
 
-    decoder_factory = kodo.RLNCDecoderFactory(field, symbols, symbol_size)
     # Create two decoders, one which has the status updater turned on, and one
     # which has it off.
-    decoder1 = decoder_factory.build()
-    decoder2 = decoder_factory.build()
+    decoder1 = kodo.RLNCDecoder(field, symbols, symbol_size)
+    decoder2 = kodo.RLNCDecoder(field, symbols, symbol_size)
 
     decoder2.set_status_updater_on()
 
@@ -43,14 +40,14 @@ def main():
     # size as the encoder's block size and assign it to the encoder.
     # This bytearray must not go out of scope while the encoder exists!
     data_in = bytearray(os.urandom(encoder.block_size()))
-    encoder.set_const_symbols(data_in)
+    encoder.set_symbols_storage(data_in)
 
     # Define the data_out bytearray where the symbols should be decoded
     # This bytearray must not go out of scope while the encoder exists!
     data_out1 = bytearray(decoder1.block_size())
     data_out2 = bytearray(decoder1.block_size())
-    decoder1.set_mutable_symbols(data_out1)
-    decoder2.set_mutable_symbols(data_out2)
+    decoder1.set_symbols_storage(data_out1)
+    decoder2.set_symbols_storage(data_out2)
 
     # Skip the systematic phase as the effect of the symbol status decoder is
     # only visible when reading coded packets.
@@ -59,12 +56,12 @@ def main():
     print("Processing")
     while not decoder1.is_complete():
         # Generate an encoded packet
-        payload = encoder.write_payload()
+        payload = encoder.produce_payload()
         payload_copy = copy.copy(payload)
 
         # Pass that packet to the decoder
-        decoder1.read_payload(payload)
-        decoder2.read_payload(payload_copy)
+        decoder1.consume_payload(payload)
+        decoder2.consume_payload(payload_copy)
         print("decoder 1: {}".format(decoder1.symbols_decoded()))
         print("decoder 2: {}".format(decoder2.symbols_decoded()))
         print("-----------------")

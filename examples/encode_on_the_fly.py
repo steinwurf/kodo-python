@@ -28,13 +28,9 @@ def main():
     symbols = 10
     symbol_size = 160
 
-    # Create an encoder/decoder factory that are used to build the
-    # actual encoders/decoders
-    encoder_factory = kodo.RLNCEncoderFactory(field, symbols, symbol_size)
-    encoder = encoder_factory.build()
-
-    decoder_factory = kodo.RLNCDecoderFactory(field, symbols, symbol_size)
-    decoder = decoder_factory.build()
+    # Create an encoder and a decoder
+    encoder = kodo.RLNCEncoder(field, symbols, symbol_size)
+    decoder = kodo.RLNCDecoder(field, symbols, symbol_size)
 
     # Generate some random data to encode. We create a bytearray of the same
     # size as the encoder's block size
@@ -43,7 +39,7 @@ def main():
     # Define the data_out bytearray where the symbols should be decoded
     # This bytearray must not go out of scope while the encoder exists!
     data_out = bytearray(decoder.block_size())
-    decoder.set_mutable_symbols(data_out)
+    decoder.set_symbols_storage(data_out)
 
     # Let's split the data into symbols and feed the encoder one symbol at a
     # time
@@ -58,11 +54,11 @@ def main():
             # For an encoder the rank specifies the number of symbols
             # it has available for encoding
             rank = encoder.rank()
-            encoder.set_const_symbol(rank, symbol_storage[rank])
+            encoder.set_symbol_storage(symbol_storage[rank], rank)
             print("Symbol {} added to the encoder".format(rank))
 
         # Encode a packet into the payload buffer
-        packet = encoder.write_payload()
+        packet = encoder.produce_payload()
         print("Packet encoded")
 
         # Send the data to the decoders, here we just for fun
@@ -72,7 +68,7 @@ def main():
             continue
 
         # Packet got through - pass that packet to the decoder
-        decoder.read_payload(packet)
+        decoder.consume_payload(packet)
         print("Decoder received packet")
         print("Encoder rank = {}".format(encoder.rank()))
         print("Decoder rank = {}".format(decoder.rank()))

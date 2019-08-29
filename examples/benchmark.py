@@ -13,15 +13,12 @@ def run_coding_test(algorithm, field, symbols, symbol_size):
     # First, we measure the combined setup time for the encoder and decoder
     start = time.clock()
 
-    EncoderFactory = getattr(kodo, algorithm + 'EncoderFactory')
-    DecoderFactory = getattr(kodo, algorithm + 'DecoderFactory')
+    EncoderType = getattr(kodo, algorithm + 'Encoder')
+    DecoderType = getattr(kodo, algorithm + 'Decoder')
     field = getattr(kodo.field, field)
 
-    encoder_factory = EncoderFactory(field, symbols, symbol_size)
-    encoder = encoder_factory.build()
-
-    decoder_factory = DecoderFactory(field, symbols, symbol_size)
-    decoder = decoder_factory.build()
+    encoder = EncoderType(field, symbols, symbol_size)
+    decoder = DecoderType(field, symbols, symbol_size)
 
     # Stop the setup timer
     stop = time.clock()
@@ -34,10 +31,10 @@ def run_coding_test(algorithm, field, symbols, symbol_size):
 
     # Create random data to encode
     data_in = bytearray(os.urandom(encoder.block_size()))
-    encoder.set_const_symbols(data_in)
+    encoder.set_symbols_storage(data_in)
 
     data_out = bytearray(decoder.block_size())
-    decoder.set_mutable_symbols(data_out)
+    decoder.set_symbols_storage(data_out)
 
     # The generated payloads will be stored in this list
     payloads = []
@@ -50,7 +47,7 @@ def run_coding_test(algorithm, field, symbols, symbol_size):
 
     # Generate coded symbols with the encoder
     for i in range(payload_count):
-        payload = encoder.write_payload()
+        payload = encoder.produce_payload()
         payloads.append(payload)
 
     # Stop the encoding timer
@@ -69,7 +66,7 @@ def run_coding_test(algorithm, field, symbols, symbol_size):
     for i in range(payload_count):
         if decoder.is_complete():
             break
-        decoder.read_payload(payloads[i])
+        decoder.consume_payload(payloads[i])
 
     # Stop the decoding timer
     stop = time.clock()

@@ -43,4 +43,13 @@ void consume_systematic_symbol(
         (uint8_t*)PyByteArray_AsString(obj), index);
 }
 
+template<class Decoder>
+pybind11::handle decoder_generate(Decoder& decoder)
+{
+    std::vector<uint8_t> coefficients(decoder.coefficient_vector_size());
+    decoder.generate(coefficients.data());
+
+    return PyByteArray_FromStringAndSize(
+        (char*)coefficients.data(), coefficients.size());
+}
 }

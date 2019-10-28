@@ -74,6 +74,9 @@ struct extra_decoder_methods<kodo_rlnc::decoder>
         using pybind11::arg;
 
         decoder_class
+        .def("generate", &decoder_generate<typename DecoderClass::type>,
+             "Generate coding coefficients.\n\n"
+             "\t:returns: The bytearray containing the coding coefficients.\n")
         .def("set_seed",
              &DecoderClass::type::set_seed, arg("seed"),
              "Set the seed of the coefficient generator.\n\n"

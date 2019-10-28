@@ -6,7 +6,7 @@ every change, see the Git log.
 
 Latest
 ------
-* Minor: Added function generate on the decoder.
+* Minor: Added generate function on the RLNCDecoder.
 * Minor: Added minimal overhead example.
 * Major: Upgrade to kodo-core 23, kodo-rlnc 16, kodo-perpetual 5,
   kodo-fulcrum 14.

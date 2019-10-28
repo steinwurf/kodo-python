@@ -6,7 +6,8 @@ every change, see the Git log.
 
 Latest
 ------
-* tbd
+* Major: Upgrade to kodo-core 23, kodo-rlnc 16, kodo-perpetual 5,
+  kodo-fulcrum 14.
 
 15.0.0
 ------

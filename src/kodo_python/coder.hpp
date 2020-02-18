@@ -33,7 +33,7 @@ pybind11::class_<Coder> coder(pybind11::module& m, const std::string& name)
 
     // Declare std::shared_ptr as a holder type, because the factories
     // return a shared_ptr when building a coder instance
-    auto coder_class = class_<coder_type, std::shared_ptr<coder_type>>(
+    return class_<coder_type, std::shared_ptr<coder_type>>(
         m, name.c_str(), "A coder object")
         .def(init<fifi::finite_field, uint32_t, uint32_t>(),
              arg("field"), arg("symbols"), arg("symbol_size"),
@@ -70,7 +70,5 @@ pybind11::class_<Coder> coder(pybind11::module& m, const std::string& name)
              "Set a zone prefix for the tracing output.\n\n"
              "\t:param zone_prefix: The zone prefix to append to all "
              "tracing zones.");
-
-    return coder_class;
 }
 }

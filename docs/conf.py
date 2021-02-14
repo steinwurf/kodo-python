@@ -50,8 +50,8 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'kodo-python'
-copyright = u'2016, Steinwurf ApS'
+project = 'kodo-python'
+copyright = '2016, Steinwurf ApS'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -114,7 +114,7 @@ try:
 
     html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
 except:
-    print "Warning: Unable to import sphinx_rtd_theme, using default."
+    print("Warning: Unable to import sphinx_rtd_theme, using default.")
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
@@ -203,7 +203,7 @@ latex_elements = {
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual])
 latex_documents = [
-    ('index', 'kodo.tex', u'Kodo Documentation', u'Steinwurf ApS', 'manual'),
+    ('index', 'kodo.tex', 'Kodo Documentation', 'Steinwurf ApS', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -232,8 +232,8 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'kodo', u'Kodo Documentation',
-     [u'Steinwurf ApS'], 1)
+    ('index', 'kodo', 'Kodo Documentation',
+     ['Steinwurf ApS'], 1)
 ]
 
 # If true, show URL addresses after external links.
@@ -246,7 +246,7 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [(
-    'index', 'kodo', u'Kodo Python Documentation', u'Steinwurf ApS', 'kodo',
+    'index', 'kodo', 'Kodo Python Documentation', 'Steinwurf ApS', 'kodo',
     'Python bindings for Kodo, a C++ RLNC library.', 'Network Coding'
 )]
 

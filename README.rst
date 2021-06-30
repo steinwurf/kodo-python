@@ -1,7 +1,7 @@
 kodo-python
 ===========
 
-|CMake| |C++ make-specs| |No Assertions|
+|CMake| |C++ make-specs| |No Assertions| |Black| |Clang Format|
 
 .. |CMake| image:: https://github.com/steinwurf/kodo-python-new/actions/workflows/cmake.yml/badge.svg
    :target: https://github.com/steinwurf/kodo-python-new/actions/workflows/cmake.yml
@@ -11,7 +11,12 @@ kodo-python
 
 .. |No Assertions| image:: https://github.com/steinwurf/kodo-python-new/actions/workflows/nodebug.yml/badge.svg
    :target: https://github.com/steinwurf/kodo-python-new/actions/workflows/nodebug.yml
+
+.. |Black| image:: https://github.com/steinwurf/kodo-python-new/actions/workflows/black.yml/badge.svg
+   :target: https://github.com/steinwurf/kodo-python-new/actions/workflows/black.yml
    
+.. |Clang Format| image:: https://github.com/steinwurf/kodo-python-new/actions/workflows/clang-format.yml/badge.svg
+   :target: https://github.com/steinwurf/kodo-python-new/actions/workflows/clang-format.yml
 
 kodo-python contains a set of high-level Python bindings for the Kodo Network
 Coding C++ library. The bindings provide access to basic functionality provided

@@ -6,7 +6,8 @@ every change, see the Git log.
 
 Latest
 ------
-* tbd
+* Major: Rewrite repository to use the new kodo repository.
+* Minor: Update To Evaluation License 1.3.
 
 16.0.1
 ------

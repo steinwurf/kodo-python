@@ -1,136 +1,101 @@
-// Copyright Steinwurf ApS 2015.
-// Distributed under the "STEINWURF EVALUATION LICENSE 1.0".
-// See accompanying file LICENSE.rst or
-// http://www.steinwurf.com/licensing
+// License for Commercial Usage
+// Distributed under the "KODO EVALUATION LICENSE 1.3"
+//
+// Licensees holding a valid commercial license may use this project
+// in accordance with the standard license agreement terms provided
+// with the Software (see accompanying file LICENSE.rst or
+// https://www.steinwurf.com/license), unless otherwise different
+// terms and conditions are agreed in writing between Licensee and
+// Steinwurf ApS in which case the license will be regulated by that
+// separate written agreement.
+//
+// License for Non-Commercial Usage
+// Distributed under the "KODO RESEARCH LICENSE 1.2"
+//
+// Licensees holding a valid research license may use this project
+// in accordance with the license agreement terms provided with the
+// Software
+//
+// See accompanying file LICENSE.rst or https://www.steinwurf.com/license
 
 #include <pybind11/pybind11.h>
 
+#include <sstream>
 #include <string>
 
-#include <fifi/finite_field.hpp>
+#include <kodo/finite_field.hpp>
+#include <kodo/version.hpp>
 
-#include <cpuid/version.hpp>
-#include <fifi/version.hpp>
-#include <kodo_core/version.hpp>
+#include "block/decoder.hpp"
+#include "block/encoder.hpp"
+#include "block/generator/parity_2d.hpp"
+#include "block/generator/random_uniform.hpp"
+#include "block/generator/rs_cauchy.hpp"
 
-#if !defined(KODO_PYTHON_DISABLE_RLNC)
-    #include <kodo_rlnc/version.hpp>
-#endif
+#include "finite_field.hpp"
+#include "version.hpp"
 
-#if !defined(KODO_PYTHON_DISABLE_PERPETUAL)
-    #include <kodo_perpetual/version.hpp>
-#endif
+#include "perpetual/decoder.hpp"
+#include "perpetual/encoder.hpp"
+#include "perpetual/generator/random_uniform.hpp"
+#include "perpetual/offset/random_sequence.hpp"
+#include "perpetual/offset/random_uniform.hpp"
+#include "perpetual/offset/sequential_sequence.hpp"
 
-#if !defined(KODO_PYTHON_DISABLE_FULCRUM)
-    #include <kodo_fulcrum/version.hpp>
-#endif
-
+#include "slide/decoder.hpp"
+#include "slide/encoder.hpp"
+#include "slide/generator/random_uniform.hpp"
+#include "slide/rate_controller.hpp"
 namespace kodo_python
 {
-// Forward declarations of "create" functions implemented in other cpp files
-void create_carousel_stacks(pybind11::module& m);
-void create_rlnc_stacks(pybind11::module& m);
-void create_perpetual_stacks(pybind11::module& m);
-void create_fulcrum_stacks(pybind11::module& m);
-
-void create_stacks(pybind11::module& m)
+inline namespace STEINWURF_KODO_PYTHON_VERSION
 {
-    pybind11::enum_<fifi::finite_field>(m, "field")
-    .value("binary", fifi::finite_field::binary)
-    .value("binary4", fifi::finite_field::binary4)
-    .value("binary8", fifi::finite_field::binary8)
-    .value("binary16", fifi::finite_field::binary16);
-
-#if !defined(KODO_PYTHON_DISABLE_NOCODE)
-    create_carousel_stacks(m);
-#endif
-
-#if !defined(KODO_PYTHON_DISABLE_RLNC)
-    create_rlnc_stacks(m);
-#endif
-
-#if !defined(KODO_PYTHON_DISABLE_PERPETUAL)
-    create_perpetual_stacks(m);
-#endif
-
-#if !defined(KODO_PYTHON_DISABLE_FULCRUM)
-    create_fulcrum_stacks(m);
-#endif
-}
-
-std::string version()
-{
-    std::string version = std::string("kodo-python: ");
-    version += STEINWURF_KODO_PYTHON_VERSION;
-
-    // Add dependency versions:
-
-    version += std::string("\n\tpybind11: ");
-#ifdef STEINWURF_PYBIND11_VERSION
-    version += std::string(STEINWURF_PYBIND11_VERSION);
-#endif
-
-    version += std::string("\n\tboost: ");
-#ifdef STEINWURF_BOOST_VERSION
-    version += std::string(STEINWURF_BOOST_VERSION);
-#endif
-
-    version += std::string("\n\tcpuid: ");
-#ifdef STEINWURF_CPUID_VERSION
-    version += cpuid::version();
-#endif
-
-    version += std::string("\n\tfifi: ");
-#ifdef STEINWURF_FIFI_VERSION
-    version += fifi::version();
-#endif
-
-    version += std::string("\n\tkodo-core: ");
-#ifdef STEINWURF_KODO_CORE_VERSION
-    version += kodo_core::version();
-#endif
-
-#if !defined(KODO_PYTHON_DISABLE_RLNC)
-    version += std::string("\n\tkodo-rlnc: ");
-#ifdef STEINWURF_KODO_RLNC_VERSION
-    version += kodo_rlnc::version();
-#endif
-#endif
-
-#if !defined(KODO_PYTHON_DISABLE_PERPETUAL)
-    version += std::string("\n\tkodo-perpetual: ");
-#ifdef STEINWURF_KODO_PERPETUAL_VERSION
-    version += kodo_perpetual::version();
-#endif
-#endif
-
-#if !defined(KODO_PYTHON_DISABLE_FULCRUM)
-    version += std::string("\n\tkodo-fulcrum: ");
-#ifdef STEINWURF_KODO_FULCRUM_VERSION
-    version += kodo_fulcrum::version();
-#endif
-#endif
-
-    version += std::string("\n\tplatform: ");
-#ifdef STEINWURF_PLATFORM_VERSION
-    version += std::string(STEINWURF_PLATFORM_VERSION);
-#endif
-
-    version += std::string("\n\tstorage: ");
-#ifdef STEINWURF_STORAGE_VERSION
-    version += std::string(STEINWURF_STORAGE_VERSION);
-#endif
-
-    return version;
-}
-
 PYBIND11_MODULE(kodo, m)
 {
     pybind11::options options;
     options.disable_function_signatures();
 
-    m.attr("__version__") = version();
+    std::stringstream ss;
+    ss << "Kodo version: " << kodo::version() << '\n';
+    ss << "Kodo python version: " << kodo_python::version();
 
-    create_stacks(m);
+    m.attr("__version__") = ss.str();
+    m.attr("__license__") = "Kodo Evaluation/Research License 1.2";
+    m.attr("__copyright__") = "Steinwurf ApS";
+
+    finite_field(m);
+    auto block = m.def_submodule("block", "Block codec");
+    block::encoder(block);
+    block::decoder(block);
+
+    auto block_generator =
+        block.def_submodule("generator", "Block codec generators");
+    block::generator::random_uniform(block_generator);
+    block::generator::rs_cauchy(block_generator);
+    block::generator::parity_2d(block_generator);
+
+    auto perpetual = m.def_submodule("perpetual", "Perpetual codec");
+    perpetual::encoder(perpetual);
+    perpetual::decoder(perpetual);
+
+    auto perpetual_generator =
+        perpetual.def_submodule("generator", "Perpetual codec generator");
+    perpetual::generator::random_uniform(perpetual_generator);
+
+    auto perpetual_offset =
+        perpetual.def_submodule("offset", "Perpetual codec offset");
+    perpetual::offset::random_uniform(perpetual_offset);
+    perpetual::offset::random_sequence(perpetual_offset);
+    perpetual::offset::sequential_sequence(perpetual_offset);
+
+    auto slide = m.def_submodule("slide", "Sliding window codec");
+    slide::encoder(slide);
+    slide::decoder(slide);
+    slide::rate_controller(slide);
+
+    auto slide_generator =
+        slide.def_submodule("generator", "Sliding window codec generator");
+    slide::generator::random_uniform(slide_generator);
+}
 }
 }

@@ -1,0 +1,20 @@
+{
+  "sphinx": [
+    {
+      "scripts": [
+        "python3 waf configure build £{git_protocol}",
+        "cd docs && sphinx-build -b html -W -D version=${release} . ${build_path}/${release}"
+      ],
+      "requirements": "${source_path}/docs/requirements.txt",
+      "tags.semver.filters": [">1.0.0"],
+      "workingtree": true,
+      "variables": {
+        "tag:release": "${name}",
+        "workingtree:release": "latest"
+      }
+    },
+    {
+      "scripts": ["versjon --docs_path ${build_path}"]
+    }
+  ]
+}

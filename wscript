@@ -2,123 +2,113 @@
 # encoding: utf-8
 
 import os
+from waflib.Build import BuildContext
 
-APPNAME = 'kodo-python'
-VERSION = '16.0.1'
-
-codecs = ['nocode', 'rlnc', 'perpetual', 'fulcrum']
+APPNAME = "kodo-python"
+VERSION = "1.0.0"
 
 
 def options(opt):
-
-    if opt.is_toplevel():
-        opt.load('python')
-
-    opts = opt.add_option_group('kodo-python options')
-
-    opts.add_option(
-        '--disable_rlnc', default=None, dest='disable_rlnc',
-        action='store_true', help="Disable the basic RLNC codecs")
-
-    opts.add_option(
-        '--disable_perpetual', default=None, dest='disable_perpetual',
-        action='store_true', help="Disable the Perpetual RLNC codecs")
-
-    opts.add_option(
-        '--disable_fulcrum', default=None, dest='disable_fulcrum',
-        action='store_true', help="Disable the Fulcrum RLNC codec")
-
-    opts.add_option(
-        '--enable_codecs', default=None, dest='enable_codecs',
-        help="Enable the chosen codec or codecs, and disable all others. "
-             "A comma-separated list of these values: {0}".format(codecs))
-
-
-def configure(conf):
-
-    conf.env['DEFINES_KODO_PYTHON_COMMON'] = []
-
-    disabled_codec_groups = 0
-
-    if conf.has_tool_option('disable_rlnc') or \
-       not conf.has_dependency_path('kodo-rlnc'):
-        conf.env['DEFINES_KODO_PYTHON_COMMON'] += ['KODO_PYTHON_DISABLE_RLNC']
-        disabled_codec_groups += 1
-    if conf.has_tool_option('disable_perpetual') or \
-       not conf.has_dependency_path('kodo-perpetual'):
-        conf.env['DEFINES_KODO_PYTHON_COMMON'] += \
-            ['KODO_PYTHON_DISABLE_PERPETUAL']
-        disabled_codec_groups += 1
-    if conf.has_tool_option('disable_fulcrum') or \
-       not conf.has_dependency_path('kodo-fulcrum'):
-        conf.env['DEFINES_KODO_PYTHON_COMMON'] += \
-            ['KODO_PYTHON_DISABLE_FULCRUM']
-        disabled_codec_groups += 1
-
-    if disabled_codec_groups == 3:
-        conf.fatal('All codec groups are disabled or unavailable. Please make '
-                   'sure that you enable at least one codec group and you '
-                   'have access to the corresponding repositories!')
-
-    if conf.has_tool_option('enable_codecs'):
-        enabled = conf.get_tool_option('enable_codecs').split(',')
-
-        # Validate the chosen codecs
-        for codec in enabled:
-            if codec not in codecs:
-                conf.fatal('Invalid codec: "{0}". Please use the following '
-                           'codec names: {1}'.format(codec, codecs))
-
-        # Disable the codecs that were not selected
-        for codec in codecs:
-            if codec not in enabled:
-                conf.env['DEFINES_KODO_PYTHON_COMMON'] += \
-                    ['KODO_PYTHON_DISABLE_{0}'.format(codec.upper())]
+    opt.load("python")
 
 
 def build(bld):
 
-    bld.env.append_unique(
-        'DEFINES_STEINWURF_VERSION',
-        'STEINWURF_KODO_PYTHON_VERSION="{}"'.format(VERSION))
-
-    bld(features='cxx cxxshlib pyext',
-        source=bld.path.ant_glob('src/kodo_python/**/*.cpp'),
-        target='kodo',
-        name='kodo-python',
-        use=[
-            'STEINWURF_VERSION',
-            'KODO_PYTHON_COMMON',
-            'pybind11_includes',
-            'kodo_core',
-            'kodo_rlnc',
-            'kodo_perpetual',
-            'kodo_fulcrum'
-        ]
+    bld(
+        features="cxx cxxshlib pyext",
+        source=bld.path.ant_glob("src/kodo_python/**/*.cpp"),
+        target="kodo",
+        name="kodo-python",
+        use=["kodo", "pybind11_includes"],
+        install_path="${PREFIX}/lib",
     )
 
     if bld.is_toplevel():
-        if bld.has_tool_option('run_tests'):
+        if bld.has_tool_option("run_tests"):
             bld.add_post_fun(exec_test_python)
 
 
+class ReleaseContext(BuildContext):
+    cmd = "prepare_release"
+    fun = "prepare_release"
+
+
+def prepare_release(ctx):
+    """Prepare a release."""
+
+    # Rewrite versions
+    with ctx.rewrite_file(filename="src/kodo_python/version.hpp") as f:
+
+        pattern = r"#define STEINWURF_KODO_PYTHON_VERSION v\d+_\d+_\d+"
+        replacement = "#define STEINWURF_KODO_PYTHON_VERSION v{}".format(
+            VERSION.replace(".", "_")
+        )
+
+        f.regex_replace(pattern=pattern, replacement=replacement)
+
+    with ctx.rewrite_file(filename="src/kodo_python/version.cpp") as f:
+        pattern = r'return "\d+\.\d+\.\d+"'
+        replacement = 'return "{}"'.format(VERSION)
+
+        f.regex_replace(pattern=pattern, replacement=replacement)
+
+    with ctx.rewrite_file(filename="setup.cfg") as f:
+
+        pattern = r"version = \d+\.\d+\.\d+"
+        replacement = "version = {}".format(VERSION)
+
+        f.regex_replace(pattern=pattern, replacement=replacement)
+
+
 def exec_test_python(bld):
-    python = bld.env['PYTHON'][0]
+    python = bld.env["PYTHON"][0]
     env = dict(os.environ)
-    env['PYTHONPATH'] = os.path.join(bld.out_dir)
+    env["PYTHONPATH"] = os.path.join(bld.out_dir)
 
     # First, run the unit tests in the 'test' folder
-    if os.path.exists('test'):
-        for f in sorted(os.listdir('test')):
-            if f.endswith('.py'):
-                test = os.path.join('test', f)
-                bld.cmd_and_log('{0} {1}\n'.format(python, test), env=env)
+    if os.path.exists("tests"):
+        for f in sorted(os.listdir("tests")):
+            if f.endswith(".py"):
+                test = os.path.join("tests", f)
+                bld.cmd_and_log("{0} {1}\n".format(python, test), env=env)
 
     # Then run the examples in the 'examples' folder
-    if os.path.exists('examples'):
-        for f in sorted(os.listdir('examples')):
-            if f.endswith('.py'):
-                example = os.path.join('examples', f)
-                bld.cmd_and_log(
-                    '{0} {1} --dry-run\n'.format(python, example), env=env)
-                print('-------------------------------\n')
+    if os.path.exists("examples"):
+        for path, _, files in os.walk("examples"):
+            for f in files:
+                if f.endswith(".py"):
+                    example = os.path.join(path, f)
+                    bld.cmd_and_log(
+                        "{0} {1} --dry-run\n".format(python, example), env=env
+                    )
+                    print("-------------------------------\n")
+
+
+def docs(ctx):
+    """Build the documentation in a virtualenv"""
+
+    with ctx.create_virtualenv() as venv:
+
+        # To update the requirements.txt just delete it - a fresh one
+        # will be generated from test/requirements.in
+        if not os.path.isfile("docs/requirements.txt"):
+            venv.run("python -m pip install pip-tools")
+            venv.run("pip-compile docs/requirements.in")
+
+        venv.run("python -m pip install -r docs/requirements.txt")
+
+        build_path = os.path.join(ctx.path.abspath(), "build", "site", "docs")
+
+        venv.run(
+            "giit clean . --build_path {}".format(build_path), cwd=ctx.path.abspath()
+        )
+
+        arguments = []
+        arguments.append("--build_path {}".format(build_path))
+        git_protocol = ctx.env.stored_options["git_protocol"]
+        if git_protocol:
+            arguments.append(
+                "--variable git_protocol --git_protocol={}".format(git_protocol)
+            )
+
+        venv.run("giit sphinx . {}".format(" ".join(arguments)), cwd=ctx.path.abspath())

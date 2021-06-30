@@ -13,9 +13,12 @@
 
 # Python
 *.pyc
-/examples/kodo.pyd
-/examples/kodo.dylib
-/examples/kodo.so
+*.pyd
+*.dylib
+*.so
+.venv
+.eggs/
+kodo.egg-info/
 
 # Compiled Doxygen documentation
 /doxygen/html
@@ -59,6 +62,12 @@ local.properties
 *.sdf
 *.opensdf
 *.log
-*.txt
 *.vcxproj*
 VSProjects
+.vscode
+
+# Project specific
+data_in
+data_out
+output_file
+decoder.state*

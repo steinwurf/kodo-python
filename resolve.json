@@ -12,48 +12,18 @@
         "name": "pybind11",
         "resolver": "git",
         "method": "semver",
-        "major": 1,
+        "major": 3,
         "sources": [
             "github.com/steinwurf/pybind11.git"
         ]
     },
     {
-        "name": "kodo-core",
+        "name": "kodo",
         "resolver": "git",
         "method": "semver",
-        "major": 23,
+        "major": 7,
         "sources": [
-            "github.com/steinwurf/kodo-core.git"
-        ]
-    },
-    {
-        "name": "kodo-rlnc",
-        "optional": true,
-        "resolver": "git",
-        "method": "semver",
-        "major": 16,
-        "sources": [
-            "github.com/steinwurf/kodo-rlnc.git"
-        ]
-    },
-    {
-        "name": "kodo-perpetual",
-        "optional": true,
-        "resolver": "git",
-        "method": "semver",
-        "major": 5,
-        "sources": [
-            "github.com/steinwurf/kodo-perpetual.git"
-        ]
-    },
-    {
-        "name": "kodo-fulcrum",
-        "optional": true,
-        "resolver": "git",
-        "method": "semver",
-        "major": 14,
-        "sources": [
-            "github.com/steinwurf/kodo-fulcrum.git"
+            "github.com/steinwurf/kodo.git"
         ]
     }
 ]

@@ -2,7 +2,7 @@
   "sphinx": [
     {
       "scripts": [
-        "python3 waf configure build £{git_protocol}",
+        "python3 waf configure --cxx_nodebug build £{git_protocol}",
         "cd docs && sphinx-build -b html -W -D version=${release} . ${build_path}/${release}"
       ],
       "requirements": "${source_path}/docs/requirements.txt",

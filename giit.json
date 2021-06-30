@@ -6,7 +6,7 @@
         "cd docs && sphinx-build -b html -W -D version=${release} . ${build_path}/${release}"
       ],
       "requirements": "${source_path}/docs/requirements.txt",
-      "tags.semver.filters": [">1.0.0"],
+      "tags.semver.filters": [">=17.0.0"],
       "workingtree": true,
       "variables": {
         "tag:release": "${name}",

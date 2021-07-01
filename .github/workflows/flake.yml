@@ -1,0 +1,25 @@
+name: Flake8
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 1 * * *" # 3 AM CET
+  push:
+  pull_request:
+jobs:
+  flake8:
+    name: Flake8 Syntax Check
+    runs-on: [self-hosted, docker]
+    container:
+      image: python:3.9.5
+      options: --user 0:0
+      volumes:
+        - /home/buildbot/.ssh:/root/.ssh
+    steps:
+      - name: Install SSH client
+        run: apt update && apt -y install openssh-client
+      - name: Checkout source code
+        uses: actions/checkout@v2
+      - name: Create flake file
+        run: echo "[flake8]\n\nignore = F632" >> .flake8
+      - name: Check python syntax
+        uses: cclauss/Find-Python-syntax-errors-action@master

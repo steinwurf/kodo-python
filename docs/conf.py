@@ -89,15 +89,15 @@ html_sidebars = {
 # documentation.
 #
 html_theme_options = {
-    "h1_background_color": "e4ecff",
-    "sidebar_hover_color": "4e5f88",
-    "logo_text_background_color": "1D2434",
-    "link_color": "2358c7",
-    "link_hover_color": "a6c2ff",
-    "code_color": "bb1212",
-    "target_highlight_color": "b6c0d6",
-    "highlighted_color": "b5cdff",
-    "search_form_focus_color": "4e5f88aa",
+    "h1_background_color": "a771b91A",
+    "sidebar_hover_color": "a771b9aA",
+    "logo_text_background_color": "a771b9",
+    "link_color": "a771b9",
+    "link_hover_color": "785185",
+    "code_color": "6f16ab",
+    "target_highlight_color": "a771b9",
+    "highlighted_color": "d6afe3",
+    "search_form_focus_color": "d6afe3",
 }
 
 # The name of an image file (relative to this directory) to place at the top
@@ -113,3 +113,7 @@ html_favicon = "images/icon.ico"
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = []
+
+# If true, prefix each section label with the name of the document it is in,
+# followed by a colon.
+autosectionlabel_prefix_document = True

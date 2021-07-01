@@ -1,7 +1,7 @@
 kodo-python
 ===========
 
-|CMake| |C++ make-specs| |No Assertions| |Black| |Clang Format|
+|CMake| |C++ make-specs| |No Assertions| |Flake8| |Black| |Clang Format|
 
 .. |CMake| image:: https://github.com/steinwurf/kodo-python-new/actions/workflows/cmake.yml/badge.svg
    :target: https://github.com/steinwurf/kodo-python-new/actions/workflows/cmake.yml
@@ -12,6 +12,9 @@ kodo-python
 .. |No Assertions| image:: https://github.com/steinwurf/kodo-python-new/actions/workflows/nodebug.yml/badge.svg
    :target: https://github.com/steinwurf/kodo-python-new/actions/workflows/nodebug.yml
 
+.. |Flake8| image:: https://github.com/steinwurf/kodo-python-new/actions/workflows/flake.yml/badge.svg
+   :target: https://github.com/steinwurf/kodo-python-new/actions/workflows/flake.yml
+   
 .. |Black| image:: https://github.com/steinwurf/kodo-python-new/actions/workflows/black.yml/badge.svg
    :target: https://github.com/steinwurf/kodo-python-new/actions/workflows/black.yml
    

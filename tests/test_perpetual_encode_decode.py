@@ -23,7 +23,19 @@ import kodo
 
 
 class TestPerpetualEncodeDecode(unittest.TestCase):
-    def encode_decode_offset_random_sequence(self):
+
+    def test_encode_decode_offset_random_sequence(self):
+        fields = [
+            kodo.FiniteField.binary,
+            kodo.FiniteField.binary4,
+            kodo.FiniteField.binary8,
+            kodo.FiniteField.binary16,
+        ]
+        for field in fields:
+            with self.subTest(field):
+                self.encode_decode_offset_random_sequence(field)
+
+    def encode_decode_offset_random_sequence(self, field):
 
         symbol_bytes = 1400
 

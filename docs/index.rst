@@ -6,10 +6,6 @@ This project contains the python bindings for the
 The Kodo python repository is located here:
 https://github.com/steinwurf/kodo-python.
 
-
-The ``examples`` folder contains some programs that demonstrate the usage
-of the available API.
-
 Table of Contents
 -----------------
 

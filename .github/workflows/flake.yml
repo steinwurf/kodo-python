@@ -12,11 +12,7 @@ jobs:
     container:
       image: python:3.9.5
       options: --user 0:0
-      volumes:
-        - /home/buildbot/.ssh:/root/.ssh
     steps:
-      - name: Install SSH client
-        run: apt update && apt -y install openssh-client
       - name: Checkout source code
         uses: actions/checkout@v2
       - name: Create flake file

@@ -237,7 +237,7 @@ class TestBlockEncodeDecode(unittest.TestCase):
 
         loss_probability = 10
 
-        iterations = symbols * 2
+        iterations = symbols * 3
         while not decoder.is_complete():
             iterations -= 1
             self.assertNotEqual(0, iterations)

@@ -23,7 +23,6 @@ import kodo
 
 
 class TestPerpetualEncodeDecode(unittest.TestCase):
-
     def test_encode_decode_offset_random_sequence(self):
         fields = [
             kodo.FiniteField.binary,
